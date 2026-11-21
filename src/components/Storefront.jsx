@@ -303,18 +303,27 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
           </nav>
 
           <div className="header-actions">
-            <button className="icon-btn" onClick={() => setWishlistOpen(true)} title="Wishlist">
+            <button className="icon-btn" onClick={() => setWishlistOpen(true)} title="Wishlist" aria-label="Wishlist">
               <Heart size={17} />
-              <span>Wishlist</span>
+              <span className="btn-label">Wishlist</span>
               <span className="badge-count">{wishlist.length}</span>
             </button>
-            <button className="icon-btn" onClick={() => setCartOpen(true)} title="Shopping Cart">
+            <button className="icon-btn" onClick={() => setCartOpen(true)} title="Shopping Cart" aria-label="Shopping Cart">
               <ShoppingCart size={17} />
-              <span>Cart</span>
+              <span className="btn-label">Cart</span>
               <span className="badge-count">{cartCount}</span>
             </button>
           </div>
         </div>
+
+        {/* Mobile Quick-Navigation Strip (Visible only on phones/tablets) */}
+        <nav className="mobile-quick-nav" aria-label="Mobile Navigation">
+          <a href="#catalog" onClick={() => setViewMode('grid')}>Products</a>
+          <a href="#catalog" onClick={() => setViewMode('chartlist')}>Price Chartlist</a>
+          <a href="#track-order">Track / Proof</a>
+          <a href="#news">News</a>
+          <a href="#about">About Us</a>
+        </nav>
       </header>
 
       {/* Hero + Running Animated Advert Stage */}
@@ -457,7 +466,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               ))}
             </div>
             <div className="catalog-filters">
-              <div style={{ position: 'relative', minWidth: 230 }}>
+              <div className="search-wrap">
                 <input
                   className="input"
                   placeholder="Search beds, shoes, maize seeds..."
@@ -466,8 +475,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
                 />
               </div>
               <select
-                className="select"
-                style={{ width: 'auto' }}
+                className="select sort-select"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
               >
@@ -630,22 +638,21 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
       <section id="track-order" className="section section-alt">
         <div className="container">
           <div className="tracker-card">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: 26, alignItems: 'center' }}>
+            <div className="tracker-grid">
               <div>
                 <span className="advert-badge" style={{ marginBottom: 12 }}>
                   <ShieldCheck size={14} /> Automated Reference Lookup
                 </span>
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: 10 }}>
+                <h2 className="tracker-title">
                   Track Your Order or Submit Proof of Payment
                 </h2>
-                <p style={{ color: '#d6e4dc', fontSize: '0.92rem' }}>
+                <p style={{ color: '#e2e8f0', fontSize: '0.92rem' }}>
                   Already placed an order? Enter your automated Purchase Reference (e.g. <strong>UPS-20261121-4821</strong>) to check verification status, delivery/pickup updates, or upload your MTN MoMo / Airtel Money / Bank receipt for Sales Admin approval.
                 </p>
               </div>
-              <form onSubmit={handleTrackOrder} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <form onSubmit={handleTrackOrder} className="tracker-form">
                 <input
                   className="input"
-                  style={{ flex: 1, minWidth: 210 }}
                   placeholder="Enter Purchase Reference (e.g. UPS-...)"
                   value={trackCode}
                   onChange={(e) => setTrackCode(e.target.value)}
@@ -959,7 +966,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               </button>
             </div>
             <div className="modal-body">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 22 }}>
+              <div className="product-modal-grid">
                 <div>
                   <img
                     src={selectedProduct.image_url}
