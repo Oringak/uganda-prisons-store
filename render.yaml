@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: uganda-prisons-service-store
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ups-store-db
+          property: connectionString
+      - key: ADMIN_EMAIL
+        value: admin@prisons.go.ug
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AWS_REGION
+        value: eu-west-1
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_S3_PUBLIC_URL
+        sync: false
+      - key: YOOLA_SMS_API_KEY
+        sync: false
+      - key: YOOLA_SMS_SENDER_ID
+        value: UPS-STORE
+      - key: YOOLA_SMS_SANDBOX
+        value: "false"
+
+databases:
+  - name: ups-store-db
+    plan: free
+    region: frankfurt
+    databaseName: ups_store
+    user: ups_admin

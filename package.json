@@ -1,0 +1,36 @@
+{
+  "name": "uganda-prisons-store",
+  "version": "1.0.0",
+  "description": "Uganda Prisons Service Official Online Shopping & Production Store (Furniture, Leather Goods & Certified Seeds) with Admin Portal, AWS S3 & Yoola SMS",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "build": "vite build",
+    "dev:client": "vite",
+    "build:all": "vite build"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "author": "CPL Warder Oringa Walter Kisembo <oringawalterkisembo@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.700.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.6"
+  }
+}
