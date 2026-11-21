@@ -6,7 +6,6 @@ import {
   ClipboardList,
   Heart,
   LayoutGrid,
-  Lock,
   Mail,
   MapPin,
   MessageCircle,
@@ -275,9 +274,6 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
             <a href="#track-order">
               <Search size={13} /> Track Order &amp; Upload Payment Proof
             </a>
-            <button onClick={onNavigateAdmin}>
-              <Lock size={13} /> Admin Panel Login
-            </button>
           </div>
         </div>
       </div>
@@ -304,9 +300,6 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
             <a href="#track-order">Track / Pay Proof</a>
             <a href="#news">News</a>
             <a href="#about">About Us</a>
-            <button className="nav-link" onClick={onNavigateAdmin} style={{ color: 'var(--ups-maroon)' }}>
-              Admin Portal
-            </button>
           </nav>
 
           <div className="header-actions">
@@ -319,9 +312,6 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               <ShoppingCart size={17} />
               <span>Cart</span>
               <span className="badge-count">{cartCount}</span>
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={onNavigateAdmin}>
-              <Lock size={14} /> Admin
             </button>
           </div>
         </div>
@@ -848,9 +838,9 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               <a href="#catalog" className="btn btn-primary">
                 Shop Official Catalog
               </a>
-              <button className="btn btn-outline" onClick={onNavigateAdmin}>
-                <Lock size={15} /> Staff &amp; Sales Admin Portal
-              </button>
+              <a href="#track-order" className="btn btn-outline">
+                Track Order &amp; Payment Proof
+              </a>
             </div>
           </div>
 
@@ -908,7 +898,6 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               <li><a href="#track-order">Track Order &amp; Proof of Payment</a></li>
               <li><a href="#news">Institutional News</a></li>
               <li><a href="#about">About Us</a></li>
-              <li><button onClick={onNavigateAdmin}>Admin Panel Portal →</button></li>
             </ul>
           </div>
 
