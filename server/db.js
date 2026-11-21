@@ -84,6 +84,7 @@ async function insertAndGetId(sql, params = []) {
 
 async function createTables() {
   const idType = isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT';
+  const moneyType = isPostgres ? 'BIGINT' : 'INTEGER';
   const boolTrue = isPostgres ? 'TRUE' : '1';
   const boolFalse = isPostgres ? 'FALSE' : '0';
   const boolType = isPostgres ? 'BOOLEAN' : 'INTEGER';
@@ -104,7 +105,7 @@ async function createTables() {
       category TEXT NOT NULL,
       description TEXT NOT NULL,
       specifications TEXT DEFAULT '',
-      price_ugx INTEGER NOT NULL,
+      price_ugx ${moneyType} NOT NULL,
       unit_label TEXT NOT NULL DEFAULT 'Unit',
       stock_qty INTEGER NOT NULL DEFAULT 10,
       bulk_min_qty INTEGER NOT NULL DEFAULT 5,
@@ -127,9 +128,9 @@ async function createTables() {
       payment_method TEXT NOT NULL,
       payment_status TEXT NOT NULL DEFAULT 'pending_proof',
       order_status TEXT NOT NULL DEFAULT 'pending_verification',
-      subtotal_ugx INTEGER NOT NULL,
-      delivery_fee_ugx INTEGER NOT NULL DEFAULT 0,
-      total_ugx INTEGER NOT NULL,
+      subtotal_ugx ${moneyType} NOT NULL,
+      delivery_fee_ugx ${moneyType} NOT NULL DEFAULT 0,
+      total_ugx ${moneyType} NOT NULL,
       items_json TEXT NOT NULL,
       payment_tx_ref TEXT DEFAULT '',
       payment_proof_url TEXT DEFAULT '',
@@ -173,7 +174,7 @@ async function createTables() {
       tx_type TEXT NOT NULL,
       category TEXT NOT NULL,
       payment_method TEXT NOT NULL,
-      amount_ugx INTEGER NOT NULL,
+      amount_ugx ${moneyType} NOT NULL,
       reference_code TEXT DEFAULT '',
       customer_or_party TEXT DEFAULT '',
       description TEXT NOT NULL,
