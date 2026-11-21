@@ -414,8 +414,9 @@ export default function CheckoutModal({
                     <span style={{ fontSize: '0.88rem' }}>Automated Purchase Reference:</span>
                     <span
                       style={{
-                        background: '#09261d',
-                        color: '#f8dfa2',
+                        background: 'var(--ups-black)',
+                        color: 'var(--ups-gold-bright)',
+                        border: '1px solid var(--ups-gold)',
                         padding: '5px 12px',
                         borderRadius: 8,
                         fontWeight: 800,

@@ -595,7 +595,7 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
       <div
         style={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #09261d 0%, #0f3d2e 60%, #165942 100%)',
+          background: 'linear-gradient(135deg, #141619 0%, #164785 52%, #861742 100%)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -605,16 +605,20 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
       >
         <div
           className="panel-card"
-          style={{ width: '100%', maxWidth: 440, padding: 30, border: '2px solid var(--ups-gold)' }}
+          style={{ width: '100%', maxWidth: 450, padding: 30, border: '2.5px solid var(--ups-gold)' }}
         >
           <div style={{ textAlign: 'center', marginBottom: 22 }}>
-            <div className="brand-emblem" style={{ margin: '0 auto 12px', width: 56, height: 56 }}>
-              <ShieldCheck size={30} />
+            <div className="brand-emblem" style={{ margin: '0 auto 12px', width: 84, height: 84, padding: 6 }}>
+              <img
+                src="/images/prisonslogo-1.png"
+                alt="Uganda Prisons Service Official Logo"
+                className="brand-logo-img"
+              />
             </div>
-            <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--ups-green-deep)' }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--ups-black)' }}>
               Uganda Prisons Service
             </h2>
-            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--ups-gold-dark)', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--ups-maroon)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Sales &amp; Store Administration Portal
             </div>
           </div>
@@ -669,15 +673,19 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
     <div className="admin-shell">
       {/* Sidebar */}
       <aside className="admin-sidebar no-print">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 8px 18px', borderBottom: '1px solid rgba(255,255,255,0.12)', marginBottom: 14 }}>
-          <div className="brand-emblem" style={{ width: 40, height: 40 }}>
-            <ShieldCheck size={22} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '6px 8px 18px', borderBottom: '1px solid rgba(229,184,42,0.35)', marginBottom: 14 }}>
+          <div className="brand-emblem" style={{ width: 52, height: 52, padding: 3 }}>
+            <img
+              src="/images/prisonslogo-1.png"
+              alt="Uganda Prisons Service Official Logo"
+              className="brand-logo-img"
+            />
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 800, color: '#fff', fontSize: '0.96rem' }}>
+            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 800, color: '#fff', fontSize: '0.98rem', lineHeight: 1.2 }}>
               UPS Store Admin
             </div>
-            <div style={{ fontSize: '0.7rem', color: '#f3cc73' }}>{admin.name}</div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--ups-gold-bright)', fontWeight: 700 }}>{admin.name}</div>
           </div>
         </div>
 
@@ -2015,7 +2023,7 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
                   <Send size={14} /> Send Test SMS
                 </button>
                 {testSmsResp && (
-                  <pre style={{ marginTop: 10, background: '#09261d', color: '#a7f3d0', padding: 10, borderRadius: 8, fontSize: '0.75rem', overflowX: 'auto' }}>
+                  <pre style={{ marginTop: 10, background: 'var(--ups-black)', color: 'var(--ups-gold-bright)', border: '1px solid var(--ups-gold)', padding: 10, borderRadius: 8, fontSize: '0.75rem', overflowX: 'auto' }}>
                     {JSON.stringify(testSmsResp, null, 2)}
                   </pre>
                 )}

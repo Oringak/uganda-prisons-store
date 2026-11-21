@@ -94,6 +94,19 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
   }, [wishlist]);
 
   useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') {
+        setSelectedProduct(null);
+        setSelectedArticle(null);
+        setCartOpen(false);
+        setWishlistOpen(false);
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
     async function load() {
       try {
         const [infoRes, prodRes, advRes, newsRes] = await Promise.all([
@@ -274,7 +287,11 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
         <div className="container header-inner">
           <div className="brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="brand-emblem">
-              <ShieldCheck size={26} />
+              <img
+                src="/images/prisonslogo-1.png"
+                alt="Uganda Prisons Service Official Logo"
+                className="brand-logo-img"
+              />
             </div>
             <div>
               <div className="brand-title">Uganda Prisons Service</div>
@@ -287,7 +304,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
             <a href="#track-order">Track / Pay Proof</a>
             <a href="#news">News</a>
             <a href="#about">About Us</a>
-            <button className="nav-link" onClick={onNavigateAdmin} style={{ color: 'var(--ups-gold-dark)' }}>
+            <button className="nav-link" onClick={onNavigateAdmin} style={{ color: 'var(--ups-maroon)' }}>
               Admin Portal
             </button>
           </nav>
@@ -805,7 +822,19 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
       <section id="about" className="section section-alt">
         <div className="container about-grid">
           <div>
-            <div className="section-kicker">About Uganda Prisons Service Production</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+              <div className="brand-emblem" style={{ width: 64, height: 64, padding: 4 }}>
+                <img
+                  src="/images/prisonslogo-1.png"
+                  alt="Uganda Prisons Service Official Crest"
+                  className="brand-logo-img"
+                />
+              </div>
+              <div>
+                <div className="section-kicker" style={{ marginBottom: 2 }}>About Uganda Prisons Service Production</div>
+                <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--ups-blue)' }}>For God and My Country • Official Production &amp; Industries</div>
+              </div>
+            </div>
             <h2 className="section-title" style={{ marginBottom: 14 }}>
               Rehabilitation Through Craftsmanship, Industry &amp; Modern Agriculture
             </h2>
@@ -850,20 +879,24 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
       <footer className="site-footer">
         <div className="container footer-grid">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div className="brand-emblem" style={{ width: 40, height: 40 }}>
-                <ShieldCheck size={22} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <div className="brand-emblem" style={{ width: 52, height: 52 }}>
+                <img
+                  src="/images/prisonslogo-1.png"
+                  alt="Uganda Prisons Service Logo"
+                  className="brand-logo-img"
+                />
               </div>
               <div>
                 <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 800, color: '#fff', fontSize: '1.08rem' }}>
                   Uganda Prisons Service
                 </div>
-                <div style={{ fontSize: '0.72rem', color: '#f3cc73', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--ups-gold-bright)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Products &amp; Industries Online Store
                 </div>
               </div>
             </div>
-            <p style={{ fontSize: '0.86rem', color: '#bfd2c7' }}>
+            <p style={{ fontSize: '0.86rem', color: '#cbd5e1' }}>
               Official e-commerce platform for Uganda Prisons Service Furniture, Genuine Leather Footwear, and Certified Agricultural Seeds. Nationwide bulk delivery &amp; local Prison Unit pickup.
             </p>
           </div>
@@ -932,7 +965,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
               <h3>{selectedProduct.name}</h3>
-              <button className="icon-btn" onClick={() => setSelectedProduct(null)}>
+              <button className="icon-btn" aria-label="Close product modal" onClick={() => setSelectedProduct(null)}>
                 <X size={18} />
               </button>
             </div>
