@@ -985,7 +985,12 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
               <div className="modal-backdrop" onClick={() => setInspectOrder(null)}>
                 <div className="modal-box wide" onClick={(e) => e.stopPropagation()}>
                   <div className="modal-head">
-                    <h3>Verify Order — {inspectOrder.reference_code}</h3>
+                    <div className="modal-head-left">
+                      <button className="btn-back no-print" onClick={() => setInspectOrder(null)} aria-label="Back to orders">
+                        <ArrowLeft size={16} /> Back
+                      </button>
+                      <h3>Verify Order — {inspectOrder.reference_code}</h3>
+                    </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button className="btn btn-outline btn-sm no-print" onClick={() => window.print()}>
                         <Printer size={14} /> Print Receipt

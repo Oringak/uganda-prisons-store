@@ -1271,7 +1271,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 22px;
+  gap: 12px;
+  padding: 16px 20px;
   border-bottom: 2px solid var(--ups-gray-light);
   position: sticky;
   top: 0;
@@ -1279,10 +1280,40 @@ a {
   z-index: 5;
 }
 
+.modal-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
 .modal-head h3 {
   font-family: var(--font-serif);
   color: var(--ups-black);
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ups-blue);
+  background: var(--ups-blue-light);
+  color: var(--ups-blue-deep);
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.16s ease;
+}
+
+.btn-back:hover {
+  background: var(--ups-blue);
+  color: #fff;
 }
 
 .modal-body {

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   Building2,
   CheckCircle2,
   Copy,
@@ -173,11 +174,16 @@ export default function CheckoutModal({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-box wide" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
-          <h3>
-            {createdOrder
-              ? `Order Confirmed — Ref: ${createdOrder.reference_code}`
-              : 'Complete Your Uganda Prisons Service Order'}
-          </h3>
+          <div className="modal-head-left">
+            <button type="button" className="btn-back" onClick={onClose} aria-label="Back to store">
+              <ArrowLeft size={16} /> Back
+            </button>
+            <h3>
+              {createdOrder
+                ? `Order Confirmed — Ref: ${createdOrder.reference_code}`
+                : 'Complete Your Uganda Prisons Service Order'}
+            </h3>
+          </div>
           <button className="icon-btn" onClick={onClose} aria-label="Close checkout">
             <X size={18} />
           </button>

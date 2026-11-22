@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  ArrowLeft,
   Award,
   Building2,
   CheckCircle2,
@@ -108,19 +109,49 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
     localStorage.setItem('ups_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
+  const hasAnyOverlay = Boolean(
+    selectedProduct || selectedArticle || selectedPhoto || checkoutItems || cartOpen || wishlistOpen
+  );
+
+  // Sync Android / browser hardware Back button with open overlays
+  useEffect(() => {
+    if (!hasAnyOverlay) return;
+    if (!window.history.state?.upsOverlay) {
+      window.history.pushState({ upsOverlay: true }, '');
+    }
+    function onPopState() {
+      setSelectedProduct(null);
+      setSelectedArticle(null);
+      setSelectedPhoto(null);
+      setCheckoutItems(null);
+      setCartOpen(false);
+      setWishlistOpen(false);
+    }
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [hasAnyOverlay]);
+
+  function closeAllOverlays() {
+    setSelectedProduct(null);
+    setSelectedArticle(null);
+    setSelectedPhoto(null);
+    setCheckoutItems(null);
+    setCartOpen(false);
+    setWishlistOpen(false);
+    if (window.history.state?.upsOverlay) {
+      window.history.back();
+    }
+  }
+
   useEffect(() => {
     function onKeyDown(e) {
-      if (e.key === 'Escape') {
-        setSelectedProduct(null);
-        setSelectedArticle(null);
-        setSelectedPhoto(null);
-        setCartOpen(false);
-        setWishlistOpen(false);
+      if (e.key === 'Escape' && hasAnyOverlay) {
+        closeAllOverlays();
       }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [hasAnyOverlay]);
 
   useEffect(() => {
     async function load() {
@@ -1068,11 +1099,16 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
       {/* ==================== PRODUCT DETAIL MODAL ==================== */}
       {selectedProduct && (
-        <div className="modal-backdrop" onClick={() => setSelectedProduct(null)}>
+        <div className="modal-backdrop" onClick={closeAllOverlays}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>{selectedProduct.name}</h3>
-              <button className="icon-btn" aria-label="Close product modal" onClick={() => setSelectedProduct(null)}>
+              <div className="modal-head-left">
+                <button className="btn-back" onClick={closeAllOverlays} aria-label="Back to products">
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <h3>{selectedProduct.name}</h3>
+              </div>
+              <button className="icon-btn" aria-label="Close product modal" onClick={closeAllOverlays}>
                 <X size={18} />
               </button>
             </div>
@@ -1154,6 +1190,13 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
                         {wishlist.includes(selectedProduct.id) ? 'Saved in Wishlist' : 'Add to Wishlist'}
                       </button>
                     </div>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      style={{ marginTop: 4 }}
+                      onClick={closeAllOverlays}
+                    >
+                      <ArrowLeft size={14} /> Back to Products
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1164,11 +1207,16 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
       {/* ==================== CART DRAWER ==================== */}
       {cartOpen && (
-        <div className="drawer-backdrop" onClick={() => setCartOpen(false)}>
+        <div className="drawer-backdrop" onClick={closeAllOverlays}>
           <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>Shopping Cart ({cartCount})</h3>
-              <button className="icon-btn" onClick={() => setCartOpen(false)}>
+              <div className="modal-head-left">
+                <button className="btn-back" onClick={closeAllOverlays} aria-label="Back to store">
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <h3>Shopping Cart ({cartCount})</h3>
+              </div>
+              <button className="icon-btn" aria-label="Close cart" onClick={closeAllOverlays}>
                 <X size={18} />
               </button>
             </div>
@@ -1237,11 +1285,16 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
       {/* ==================== WISHLIST DRAWER ==================== */}
       {wishlistOpen && (
-        <div className="drawer-backdrop" onClick={() => setWishlistOpen(false)}>
+        <div className="drawer-backdrop" onClick={closeAllOverlays}>
           <div className="drawer-panel" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>Saved Wishlist ({wishlistProducts.length})</h3>
-              <button className="icon-btn" onClick={() => setWishlistOpen(false)}>
+              <div className="modal-head-left">
+                <button className="btn-back" onClick={closeAllOverlays} aria-label="Back to store">
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <h3>Saved Wishlist ({wishlistProducts.length})</h3>
+              </div>
+              <button className="icon-btn" aria-label="Close wishlist" onClick={closeAllOverlays}>
                 <X size={18} />
               </button>
             </div>
@@ -1306,7 +1359,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
         <CheckoutModal
           items={checkoutItems}
           storeInfo={storeInfo}
-          onClose={() => setCheckoutItems(null)}
+          onClose={closeAllOverlays}
           onOrderSuccess={() => {
             // Clear cart if checkout originated from cart
             if (checkoutItems === cart) setCart([]);
@@ -1317,11 +1370,16 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
       {/* ==================== PHOTO SHOWCASE LIGHTBOX ==================== */}
       {selectedPhoto && (
-        <div className="modal-backdrop" onClick={() => setSelectedPhoto(null)}>
+        <div className="modal-backdrop" onClick={closeAllOverlays}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>{selectedPhoto.tag}</h3>
-              <button className="icon-btn" aria-label="Close photo preview" onClick={() => setSelectedPhoto(null)}>
+              <div className="modal-head-left">
+                <button className="btn-back" onClick={closeAllOverlays} aria-label="Back to gallery">
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <h3>{selectedPhoto.tag}</h3>
+              </div>
+              <button className="icon-btn" aria-label="Close photo preview" onClick={closeAllOverlays}>
                 <X size={18} />
               </button>
             </div>
@@ -1335,6 +1393,9 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               <p style={{ fontSize: '0.82rem', color: 'var(--ups-maroon)', fontWeight: 700, marginTop: 4 }}>
                 Uganda Prisons Service — Official Production &amp; Industries
               </p>
+              <button className="btn btn-outline btn-sm" style={{ marginTop: 14 }} onClick={closeAllOverlays}>
+                <ArrowLeft size={14} /> Back to Previous Page
+              </button>
             </div>
           </div>
         </div>
@@ -1342,11 +1403,16 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
       {/* ==================== NEWS ARTICLE MODAL ==================== */}
       {selectedArticle && (
-        <div className="modal-backdrop" onClick={() => setSelectedArticle(null)}>
+        <div className="modal-backdrop" onClick={closeAllOverlays}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
-              <h3>{selectedArticle.title}</h3>
-              <button className="icon-btn" onClick={() => setSelectedArticle(null)}>
+              <div className="modal-head-left">
+                <button className="btn-back" onClick={closeAllOverlays} aria-label="Back to news">
+                  <ArrowLeft size={16} /> Back
+                </button>
+                <h3>{selectedArticle.title}</h3>
+              </div>
+              <button className="icon-btn" aria-label="Close article" onClick={closeAllOverlays}>
                 <X size={18} />
               </button>
             </div>
@@ -1358,7 +1424,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
                   style={{ width: '100%', maxHeight: 320, objectFit: 'cover', borderRadius: 12, marginBottom: 16 }}
                 />
               )}
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, fontSize: '0.82rem', color: 'var(--ink-muted)', flexWrap: 'wrap' }}>
                 <span className="status-badge badge-green">{selectedArticle.category}</span>
                 <span>By {selectedArticle.author}</span>
                 <span>• {formatDate(selectedArticle.created_at)}</span>
@@ -1368,6 +1434,11 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               </p>
               <div style={{ whiteSpace: 'pre-line', color: 'var(--ink)', lineHeight: 1.7 }}>
                 {selectedArticle.content}
+              </div>
+              <div style={{ marginTop: 20, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+                <button className="btn btn-outline" onClick={closeAllOverlays}>
+                  <ArrowLeft size={15} /> Back to Previous Page
+                </button>
               </div>
             </div>
           </div>
