@@ -2450,6 +2450,1394 @@ a {
   }
 }
 
+/* ==========================================================================
+   JUMIA UGANDA MARKETPLACE LAYOUT — UGANDA PRISONS SERVICE OFFICIAL BRANDING
+   Colors: Light Maroon (#9E1B4D), Blue (#164785), Golden Yellow (#E5B82A),
+           Black (#141619), Gray (#F1F1F2)
+   ========================================================================== */
+.jm-page {
+  background: #f1f1f2;
+  min-height: 100vh;
+}
+
+.jm-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 14px;
+}
+
+/* Jumia Top Promotional Banner (Light Maroon -> Blue -> Black with Gold CTA) */
+.jm-top-banner {
+  background: linear-gradient(90deg, #141619 0%, #9e1b4d 48%, #164785 100%);
+  color: #fff;
+  padding: 7px 0;
+  font-size: 0.8rem;
+}
+
+.jm-top-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jm-top-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.jm-mini-crest {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px;
+  border: 1px solid var(--ups-gold);
+  flex-shrink: 0;
+}
+
+.jm-call-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--ups-gold);
+  color: var(--ups-black);
+  font-weight: 800;
+  font-size: 0.74rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Jumia Sub-strip (Gray bar above main header on Desktop) */
+.jm-substrip {
+  background: #f1f1f2;
+  border-bottom: 1px solid #e2e4e8;
+  font-size: 0.75rem;
+  padding: 5px 0;
+  color: var(--ups-gray);
+}
+
+.jm-substrip-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jm-substrip-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  color: var(--ups-maroon);
+}
+
+.jm-substrip-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.jm-substrip-links a,
+.jm-substrip-links button {
+  background: none;
+  border: none;
+  color: var(--ups-black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jm-substrip-links a:hover,
+.jm-substrip-links button:hover {
+  color: var(--ups-maroon);
+  text-decoration: underline;
+}
+
+/* ICONIC JUMIA STICKY HEADER */
+.jm-header {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(20, 22, 25, 0.08);
+  border-bottom: 2px solid var(--ups-gold);
+}
+
+.jm-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 14px;
+}
+
+.jm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.jm-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ups-black);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.jm-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+
+.jm-logo-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #fff;
+  border: 2px solid var(--ups-gold);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jm-logo-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.jm-logo-text strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--ups-black);
+  line-height: 1.05;
+}
+
+.jm-logo-text span {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ups-maroon);
+}
+
+/* Big Central Jumia Search Bar */
+.jm-search-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 600px;
+}
+
+.jm-search-input-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.jm-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--ups-gray);
+  pointer-events: none;
+}
+
+.jm-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 34px 0 38px;
+  border: 1.5px solid #c7ccd1;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  color: var(--ups-black);
+  background: #fff;
+  outline: none;
+}
+
+.jm-search-input:focus {
+  border-color: var(--ups-blue);
+  box-shadow: 0 0 0 3px rgba(22, 71, 133, 0.12);
+}
+
+.jm-search-clear {
+  position: absolute;
+  right: 9px;
+  background: none;
+  border: none;
+  color: var(--ups-gray);
+  cursor: pointer;
+}
+
+.jm-search-btn {
+  height: 40px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 6px;
+  background: var(--ups-maroon);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(158, 27, 77, 0.28);
+}
+
+.jm-search-btn:hover {
+  background: var(--ups-maroon-hover);
+}
+
+.jm-search-dropdown {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 90;
+  overflow: hidden;
+}
+
+.jm-search-suggest-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid #f1f3f5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.jm-search-suggest-item:hover {
+  background: var(--ups-maroon-light);
+}
+
+.jm-search-suggest-item img {
+  width: 40px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.jm-suggest-meta strong {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--ups-black);
+}
+
+.jm-suggest-meta span {
+  font-size: 0.74rem;
+  color: var(--ups-maroon);
+  font-weight: 700;
+}
+
+/* Jumia Header Right Utilities */
+.jm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.jm-nav-util {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--ups-black);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.jm-nav-util:hover {
+  color: var(--ups-maroon);
+}
+
+.jm-icon-badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.jm-dot-badge {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ups-maroon);
+  color: #fff;
+  border: 1.5px solid var(--ups-gold);
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jm-help-wrap {
+  position: relative;
+}
+
+.jm-help-menu {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 245px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 95;
+}
+
+.jm-help-menu a,
+.jm-help-menu button {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ups-black);
+  cursor: pointer;
+}
+
+.jm-help-menu a:hover,
+.jm-help-menu button:hover {
+  background: var(--ups-gray-light);
+  color: var(--ups-maroon);
+}
+
+.jm-help-menu .jm-help-cta {
+  background: var(--ups-maroon);
+  color: #fff;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.jm-help-menu .jm-help-cta:hover {
+  background: var(--ups-maroon-hover);
+  color: #fff;
+}
+
+/* MAIN MARKETPLACE BODY */
+.jm-main {
+  padding: 14px 0 28px;
+}
+
+.jm-section-gap {
+  margin-top: 16px;
+}
+
+/* 1. ICONIC JUMIA 3-COLUMN HERO ROW */
+.jm-hero-row {
+  display: grid;
+  grid-template-columns: 215px minmax(0, 1fr) 225px;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.jm-cat-sidebar {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.jm-cat-sidebar-head {
+  background: var(--ups-black);
+  color: var(--ups-gold-bright);
+  padding: 9px 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jm-cat-sidebar ul {
+  list-style: none;
+  padding: 6px 0;
+  flex: 1;
+}
+
+.jm-cat-sidebar li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7.5px 12px;
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ups-black);
+  cursor: pointer;
+  text-align: left;
+}
+
+.jm-cat-sidebar li button:hover {
+  color: var(--ups-maroon);
+  background: var(--ups-maroon-light);
+}
+
+.jm-sidebar-divider {
+  border-top: 1px solid #eceef0;
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.jm-hero-carousel {
+  min-width: 0;
+}
+
+.jm-hero-carousel .advert-stage {
+  height: 100%;
+  min-height: 384px;
+  border-radius: 6px;
+  border-width: 2px;
+}
+
+.jm-hero-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jm-service-card {
+  background: #fff;
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.jm-service-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.jm-service-item strong {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--ups-black);
+  line-height: 1.15;
+}
+
+.jm-service-item span {
+  font-size: 0.71rem;
+  color: var(--ups-gray);
+}
+
+.jm-service-ico {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jm-service-ico.maroon { background: var(--ups-maroon-light); color: var(--ups-maroon); }
+.jm-service-ico.blue { background: var(--ups-blue-light); color: var(--ups-blue); }
+.jm-service-ico.gold { background: var(--ups-gold-light); color: var(--ups-gold-dark); }
+
+.jm-promo-side-card {
+  flex: 1;
+  background: linear-gradient(145deg, #164785 0%, #141619 52%, #9e1b4d 100%);
+  color: #fff;
+  border-radius: 6px;
+  border: 1.5px solid var(--ups-gold);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.jm-promo-side-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ups-gold-bright);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.jm-promo-side-card h4 {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  margin: 6px 0 4px;
+}
+
+.jm-promo-side-card p {
+  font-size: 0.74rem;
+  color: #e5e7eb;
+  margin-bottom: 10px;
+}
+
+/* 2. JUMIA QUICK CATEGORY TILES STRIP */
+.jm-white-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.jm-tiles-card {
+  padding: 12px;
+}
+
+.jm-quick-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.jm-quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: transform 0.16s ease;
+}
+
+.jm-quick-tile:hover {
+  transform: translateY(-3px);
+}
+
+.jm-tile-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid #e5e7eb;
+  background: #f8f9fa;
+}
+
+.jm-tile-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jm-quick-tile span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ups-black);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 3. JUMIA COLORED HEADER SHELVES (Flash Sales & Category Shelves) */
+.jm-shelf-box {
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.jm-shelf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  flex-wrap: wrap;
+}
+
+.jm-shelf-header.maroon-bar {
+  background: var(--ups-maroon);
+  color: #fff;
+  border-bottom: 2px solid var(--ups-gold);
+}
+
+.jm-shelf-header.blue-bar {
+  background: var(--ups-blue);
+  color: #fff;
+  border-bottom: 2px solid var(--ups-gold);
+}
+
+.jm-shelf-header.black-bar {
+  background: var(--ups-black);
+  color: #fff;
+  border-bottom: 2px solid var(--ups-gold);
+}
+
+.jm-shelf-header.gray-bar {
+  background: #e5e7eb;
+  color: var(--ups-black);
+  border-bottom: 2px solid var(--ups-maroon);
+}
+
+.jm-shelf-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jm-shelf-title h2 {
+  font-family: var(--font-sans);
+  font-size: 1.04rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.jm-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(20, 22, 25, 0.35);
+  border: 1px solid rgba(229, 184, 42, 0.65);
+  color: #fff;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+
+.jm-countdown strong {
+  color: var(--ups-gold-bright);
+}
+
+.jm-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--ups-gold-bright);
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+
+.jm-see-all:hover {
+  text-decoration: underline;
+}
+
+.jm-header-hint {
+  font-size: 0.76rem;
+  color: var(--ups-gold-bright);
+  font-weight: 700;
+}
+
+/* Horizontal Swipeable Product Shelf */
+.jm-shelf-scroller {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.jm-shelf-card {
+  flex: 0 0 192px;
+  background: #fff;
+  border: 1px solid #eceef0;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.jm-shelf-card:hover,
+.jm-grid-card:hover {
+  box-shadow: 0 6px 18px rgba(20, 22, 25, 0.13);
+  transform: translateY(-2px);
+}
+
+.jm-card-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #f5f6f8;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.jm-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jm-official-tag {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  background: var(--ups-blue);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.jm-cat-chip {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  background: rgba(22, 71, 133, 0.9);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.jm-wish-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ups-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+}
+
+.jm-wish-btn.active {
+  background: var(--ups-maroon-light);
+  color: var(--ups-maroon);
+}
+
+.jm-card-body {
+  padding: 9px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.jm-sku-line {
+  font-size: 0.66rem;
+  color: var(--ups-gray);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.jm-card-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ups-black);
+  line-height: 1.28;
+  margin-bottom: 5px;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.jm-card-title:hover {
+  color: var(--ups-maroon);
+}
+
+.jm-card-price {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--ups-black);
+  line-height: 1.15;
+}
+
+.jm-card-unit {
+  font-size: 0.69rem;
+  color: var(--ups-gray);
+  margin: 2px 0 7px;
+}
+
+/* Jumia Flash Sales Stock Progress Bar */
+.jm-stock-wrap {
+  margin-bottom: 8px;
+}
+
+.jm-stock-text {
+  font-size: 0.68rem;
+  color: var(--ups-gray);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.jm-stock-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.jm-stock-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ups-maroon), var(--ups-gold));
+  border-radius: 999px;
+}
+
+.jm-add-btn {
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  background: var(--ups-maroon);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.74rem;
+  padding: 8px 6px;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+}
+
+.jm-add-btn:hover {
+  background: var(--ups-maroon-hover);
+}
+
+/* Full Marketplace Catalog Controls & 4-Col Desktop / 2-Col Mobile Grid */
+.jm-view-pills {
+  display: inline-flex;
+  background: rgba(20, 22, 25, 0.3);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.jm-view-pills button {
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.jm-view-pills button.active {
+  background: var(--ups-gold);
+  color: var(--ups-black);
+}
+
+.jm-catalog-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eceef0;
+  flex-wrap: wrap;
+}
+
+.jm-filter-pills {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.jm-pill {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--ups-gray-border);
+  background: #f8f9fa;
+  color: var(--ups-black);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.jm-pill.active,
+.jm-pill:hover {
+  background: var(--ups-maroon);
+  color: #fff;
+  border-color: var(--ups-maroon);
+}
+
+.jm-sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ups-gray);
+}
+
+.jm-sort-select {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
+.jm-catalog-body {
+  padding: 14px;
+}
+
+.jm-loading-pad {
+  text-align: center;
+  padding: 32px 14px;
+  color: var(--ups-gray);
+  font-size: 0.88rem;
+}
+
+.jm-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.jm-grid-card {
+  background: #fff;
+  border: 1px solid #eceef0;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.jm-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.jm-btn-outline-sm {
+  border: 1.5px solid var(--ups-blue);
+  background: #fff;
+  color: var(--ups-blue);
+  border-radius: 5px;
+  padding: 7px 4px;
+  font-size: 0.73rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.jm-btn-outline-sm:hover {
+  background: var(--ups-blue-light);
+}
+
+.jm-btn-buy-sm {
+  border: none;
+  background: var(--ups-maroon);
+  color: #fff;
+  border-radius: 5px;
+  padding: 7px 4px;
+  font-size: 0.73rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.jm-btn-buy-sm:hover {
+  background: var(--ups-maroon-hover);
+}
+
+/* Jumia Product Detail Delivery Box */
+.jm-pdp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 22px;
+}
+
+.jm-pdp-delivery-box {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f8f9fa;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.jm-pdp-del-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.78rem;
+}
+
+.jm-pdp-del-row strong {
+  display: block;
+  color: var(--ups-black);
+}
+
+.jm-pdp-del-row span {
+  color: var(--ups-gray);
+}
+
+/* About Box & Jumia Footer Top Strip */
+.jm-about-box {
+  padding: 22px;
+}
+
+.jm-footer {
+  margin-top: 24px;
+  padding-top: 0;
+}
+
+.jm-footer-top-strip {
+  background: #23272c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px 0;
+}
+
+.jm-footer-top-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Left Hamburger Drawer & Mobile Bottom Navigation Bar */
+.jm-left-drawer {
+  justify-content: flex-start;
+}
+
+.jm-drawer-section-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--ups-maroon);
+  letter-spacing: 0.06em;
+  padding: 6px 10px;
+}
+
+.jm-drawer-cat-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f1f3f5;
+  color: var(--ups-black);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.jm-drawer-cat-btn:hover {
+  background: var(--ups-maroon-light);
+  color: var(--ups-maroon);
+}
+
+.jm-mobile-bottom-nav {
+  display: none;
+}
+
+/* ==========================================================================
+   JUMIA ANDROID MOBILE RESPONSIVE EXPERIENCE (<= 768px)
+   ========================================================================== */
+@media (max-width: 980px) {
+  .jm-hero-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .jm-cat-sidebar,
+  .jm-hero-right,
+  .jm-substrip {
+    display: none;
+  }
+  .jm-menu-btn {
+    display: inline-flex;
+  }
+  .jm-quick-tiles-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .jm-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .jm-page {
+    padding-bottom: 62px; /* room for Jumia fixed bottom nav */
+  }
+
+  .jm-container {
+    padding: 0 10px;
+  }
+
+  .jm-top-banner {
+    font-size: 0.68rem;
+    padding: 5px 0;
+  }
+
+  .jm-top-banner-right {
+    display: none;
+  }
+
+  .jm-header-row {
+    flex-wrap: wrap;
+    padding: 8px 10px 9px;
+    gap: 8px;
+  }
+
+  .jm-logo-badge {
+    width: 34px;
+    height: 34px;
+  }
+
+  .jm-logo-text strong {
+    font-size: 0.96rem;
+  }
+
+  .jm-logo-text span {
+    font-size: 0.58rem;
+  }
+
+  .desktop-only,
+  .desktop-label {
+    display: none !important;
+  }
+
+  .jm-header-right {
+    gap: 10px;
+  }
+
+  /* Jumia Mobile Row 2 Full-Width Pill Search Bar */
+  .jm-search-form {
+    order: 3;
+    flex-basis: 100%;
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .jm-search-input {
+    height: 36px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    background: #f3f4f6;
+    border-color: #d8dde3;
+  }
+
+  .jm-search-btn {
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+  }
+
+  .jm-main {
+    padding: 10px 0 18px;
+  }
+
+  .jm-section-gap {
+    margin-top: 10px;
+  }
+
+  .jm-hero-carousel .advert-stage {
+    min-height: 220px;
+    border-radius: 8px;
+  }
+
+  /* Jumia Mobile 4x2 Quick Visual Tiles */
+  .jm-tiles-card {
+    padding: 9px 8px;
+  }
+
+  .jm-quick-tiles-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .jm-quick-tile span {
+    font-size: 0.66rem;
+  }
+
+  /* Jumia Mobile Colored Shelf Headers */
+  .jm-shelf-header {
+    padding: 9px 10px;
+    gap: 6px;
+  }
+
+  .jm-shelf-title h2 {
+    font-size: 0.86rem;
+  }
+
+  .jm-countdown {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+  }
+
+  .jm-see-all {
+    font-size: 0.72rem;
+  }
+
+  .jm-shelf-scroller {
+    padding: 9px;
+    gap: 8px;
+  }
+
+  .jm-shelf-card {
+    flex: 0 0 148px;
+  }
+
+  /* Jumia Mobile 2-Column Product Grid ALWAYS (360px - 768px) */
+  .jm-catalog-controls {
+    padding: 9px 10px;
+    gap: 8px;
+  }
+
+  .jm-filter-pills {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .jm-filter-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jm-pill {
+    flex-shrink: 0;
+    font-size: 0.74rem;
+    padding: 5px 11px;
+  }
+
+  .jm-sort-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .jm-catalog-body {
+    padding: 9px;
+  }
+
+  .jm-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .jm-card-body {
+    padding: 7px 8px 8px;
+  }
+
+  .jm-card-title {
+    font-size: 0.77rem;
+  }
+
+  .jm-card-price {
+    font-size: 0.88rem;
+  }
+
+  .jm-card-unit {
+    font-size: 0.64rem;
+  }
+
+  .jm-pdp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .jm-about-box {
+    padding: 14px;
+  }
+
+  /* Jumia Fixed Bottom Mobile Navigation Bar */
+  .jm-mobile-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 58px;
+    background: #ffffff;
+    border-top: 2px solid var(--ups-gold);
+    box-shadow: 0 -4px 14px rgba(20, 22, 25, 0.12);
+    z-index: 80;
+  }
+
+  .jm-mobile-bottom-nav button,
+  .jm-mobile-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    color: var(--ups-black);
+    font-size: 0.64rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .jm-mobile-bottom-nav button:active,
+  .jm-mobile-bottom-nav a:active {
+    color: var(--ups-maroon);
+  }
+
+  .jm-bnav-ico {
+    position: relative;
+    display: inline-flex;
+  }
+}
+
 @media print {
   .no-print,
   .admin-sidebar,
