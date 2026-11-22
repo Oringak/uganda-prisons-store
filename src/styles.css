@@ -1609,6 +1609,13 @@ a {
     gap: 8px;
     min-width: 0;
     flex: 1;
+    overflow: hidden;
+  }
+
+  .brand > div:last-child {
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
   }
 
   .brand-emblem {
