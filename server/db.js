@@ -197,10 +197,29 @@ async function createTables() {
       provider_response TEXT DEFAULT '',
       created_at TEXT NOT NULL
     )`,
+    `CREATE TABLE IF NOT EXISTS customers (
+      id ${idType},
+      full_name TEXT NOT NULL,
+      phone TEXT NOT NULL UNIQUE,
+      email TEXT DEFAULT '',
+      password_hash TEXT NOT NULL,
+      default_district TEXT DEFAULT 'Kampala',
+      default_address TEXT DEFAULT '',
+      default_prison_unit TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`,
   ];
 
   for (const stmt of statements) {
     await run(stmt);
+  }
+
+  // Idempotent migration: attach customer_id column to existing orders tables
+  try {
+    await run('ALTER TABLE orders ADD COLUMN customer_id INTEGER DEFAULT NULL');
+  } catch {
+    // Column already exists
   }
 }
 

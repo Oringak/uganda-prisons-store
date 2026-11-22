@@ -96,7 +96,7 @@ router.post('/change-password', async (req, res) => {
 router.get('/dashboard', async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const [orders, products, adverts, news, transactions, smsLogs, storageStatus, yoolaConfig] =
+    const [orders, products, adverts, news, transactions, smsLogs, customers, storageStatus, yoolaConfig] =
       await Promise.all([
         query('SELECT * FROM orders ORDER BY created_at DESC'),
         query('SELECT * FROM products'),
@@ -104,6 +104,7 @@ router.get('/dashboard', async (req, res) => {
         query('SELECT * FROM news'),
         query('SELECT * FROM transactions ORDER BY tx_date DESC, id DESC'),
         query('SELECT * FROM sms_logs ORDER BY id DESC LIMIT 20'),
+        query('SELECT id FROM customers'),
         getStorageStatus(),
         getYoolaConfig(),
       ]);
@@ -156,6 +157,8 @@ router.get('/dashboard', async (req, res) => {
         bulkOrders,
         pickupOrders,
         smsCount: smsLogs.length,
+        totalCustomers: customers.length,
+        lowStockProducts: products.filter((p) => Number(p.stock_qty) <= 10).length,
       },
       recentOrders: orders.slice(0, 8).map(formatOrder),
       integrations: {
@@ -169,6 +172,34 @@ router.get('/dashboard', async (req, res) => {
         },
       },
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==================== REGISTERED CUSTOMERS ====================
+router.get('/customers', async (req, res) => {
+  try {
+    const [customers, orders] = await Promise.all([
+      query('SELECT id, full_name, phone, email, default_district, default_address, default_prison_unit, created_at FROM customers ORDER BY created_at DESC'),
+      query('SELECT id, customer_id, customer_phone, total_ugx, payment_status FROM orders'),
+    ]);
+
+    const enriched = customers.map((c) => {
+      const myOrders = orders.filter(
+        (o) => Number(o.customer_id) === Number(c.id) || String(o.customer_phone || '').replace(/[^\d]/g, '').endsWith(String(c.phone).slice(-9))
+      );
+      const totalSpent = myOrders
+        .filter((o) => o.payment_status === 'verified')
+        .reduce((s, o) => s + Number(o.total_ugx || 0), 0);
+      return {
+        ...c,
+        order_count: myOrders.length,
+        verified_spend_ugx: totalSpent,
+      };
+    });
+
+    res.json({ customers: enriched });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -60,6 +60,34 @@ export async function adminFetch(url, options = {}) {
   return data;
 }
 
+export function getCustomerToken() {
+  return localStorage.getItem('ups_customer_token') || '';
+}
+
+export function setCustomerToken(token) {
+  if (token) localStorage.setItem('ups_customer_token', token);
+  else localStorage.removeItem('ups_customer_token');
+}
+
+export async function customerFetch(url, options = {}) {
+  const token = getCustomerToken();
+  const headers = { ...(options.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (!(options.body instanceof FormData) && options.body && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+  const res = await fetch(url, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    setCustomerToken('');
+    throw new Error(data.error || 'Please sign in again.');
+  }
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
 export function paymentStatusMeta(status) {
   const map = {
     pending_proof: { label: 'Awaiting Payment Proof', cls: 'badge-gold' },

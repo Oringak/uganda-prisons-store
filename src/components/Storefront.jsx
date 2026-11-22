@@ -30,18 +30,24 @@ import {
   Trash2,
   Truck,
   Upload,
+  User,
   X,
   Zap,
 } from 'lucide-react';
 import AdvertStage from './AdvertStage.jsx';
 import CheckoutModal from './CheckoutModal.jsx';
+import CustomerAuthModal from './CustomerAuthModal.jsx';
+import CustomerAccountModal from './CustomerAccountModal.jsx';
 import {
   apiFetch,
+  customerFetch,
   formatDate,
   formatDateTime,
   formatUgx,
+  getCustomerToken,
   orderStatusMeta,
   paymentStatusMeta,
+  setCustomerToken,
 } from '../utils/api';
 
 const CATEGORIES = ['All', 'Furniture', 'Leather Footwear', 'Agricultural Seeds', 'Other'];
@@ -137,10 +143,27 @@ export default function Storefront({ onToast }) {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [customer, setCustomer] = useState(null);
+  const [authModalMode, setAuthModalMode] = useState(null); // 'login' | 'register' | null
+  const [accountModalTab, setAccountModalTab] = useState(null); // 'orders' | 'address' | null
   const [unitsModalOpen, setUnitsModalOpen] = useState(false);
   const [checkoutItems, setCheckoutItems] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+  useEffect(() => {
+    if (!getCustomerToken()) return;
+    customerFetch('/api/customer/me')
+      .then((res) => setCustomer(res.customer || null))
+      .catch(() => setCustomerToken(''));
+  }, []);
+
+  function handleCustomerLogout() {
+    setCustomerToken('');
+    setCustomer(null);
+    onToast('Signed out of your UPS Market account.');
+  }
 
   // Order Tracker & Proof of Payment Upload
   const [trackCode, setTrackCode] = useState('');
@@ -166,7 +189,9 @@ export default function Storefront({ onToast }) {
     cartOpen ||
     wishlistOpen ||
     mobileMenuOpen ||
-    unitsModalOpen
+    unitsModalOpen ||
+    authModalMode ||
+    accountModalTab
   );
 
   // Sync Android / browser Back button cleanly with open overlays
@@ -184,6 +209,8 @@ export default function Storefront({ onToast }) {
       setWishlistOpen(false);
       setMobileMenuOpen(false);
       setUnitsModalOpen(false);
+      setAuthModalMode(null);
+      setAccountModalTab(null);
     }
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -198,6 +225,8 @@ export default function Storefront({ onToast }) {
     setWishlistOpen(false);
     setMobileMenuOpen(false);
     setUnitsModalOpen(false);
+    setAuthModalMode(null);
+    setAccountModalTab(null);
     if (window.history.state?.upsOverlay) {
       window.history.back();
     }
@@ -571,10 +600,71 @@ export default function Storefront({ onToast }) {
 
           {/* JUMIA HEADER UTILITY ICONS */}
           <div className="jm-header-right">
-            <a href="#track-order" className="jm-nav-util desktop-only" title="Track Order & Proof">
-              <ClipboardList size={19} />
-              <span>Track Order</span>
-            </a>
+            {/* Jumia Account Dropdown (Sign In / Create Account / My Orders) */}
+            <div className="jm-help-wrap desktop-only">
+              <button
+                className="jm-nav-util"
+                onClick={() => setAccountMenuOpen((v) => !v)}
+                onBlur={() => setTimeout(() => setAccountMenuOpen(false), 200)}
+              >
+                <User size={19} />
+                <span>{customer ? `Hi, ${customer.full_name.split(' ')[0]}` : 'Account'}</span>
+                <ChevronDown size={14} />
+              </button>
+              {accountMenuOpen && (
+                <div className="jm-help-menu">
+                  {!customer ? (
+                    <>
+                      <button
+                        type="button"
+                        className="jm-help-cta"
+                        onMouseDown={() => { setAccountMenuOpen(false); setAuthModalMode('login'); }}
+                      >
+                        SIGN IN
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={() => { setAccountMenuOpen(false); setAuthModalMode('register'); }}
+                      >
+                        Create UPS Account
+                      </button>
+                      <a href="#track-order" onMouseDown={() => setAccountMenuOpen(false)}>Track Order by Reference</a>
+                      <button type="button" onMouseDown={() => { setAccountMenuOpen(false); setWishlistOpen(true); }}>
+                        Saved Items ({wishlist.length})
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onMouseDown={() => { setAccountMenuOpen(false); setAccountModalTab('orders'); }}
+                      >
+                        My Orders &amp; Payment Proof
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={() => { setAccountMenuOpen(false); setAccountModalTab('address'); }}
+                      >
+                        Address Book &amp; Pickup Unit
+                      </button>
+                      <button
+                        type="button"
+                        onMouseDown={() => { setAccountMenuOpen(false); setWishlistOpen(true); }}
+                      >
+                        Saved Items ({wishlist.length})
+                      </button>
+                      <button
+                        type="button"
+                        style={{ color: '#991b1b', fontWeight: 800, borderTop: '1px solid #eceef0', marginTop: 4 }}
+                        onMouseDown={() => { setAccountMenuOpen(false); handleCustomerLogout(); }}
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="jm-help-wrap desktop-only">
               <button
@@ -1394,10 +1484,12 @@ export default function Storefront({ onToast }) {
           </span>
           <span>Saved</span>
         </button>
-        <a href="#track-order">
-          <ClipboardList size={19} />
-          <span>Track</span>
-        </a>
+        <button
+          onClick={() => (customer ? setAccountModalTab('orders') : setAuthModalMode('login'))}
+        >
+          <User size={19} />
+          <span>{customer ? customer.full_name.split(' ')[0] : 'Account'}</span>
+        </button>
       </nav>
 
       {/* ==================== MOBILE CATEGORIES DRAWER (Jumia Hamburger Menu) ==================== */}
@@ -1409,13 +1501,56 @@ export default function Storefront({ onToast }) {
                 <button className="btn-back" onClick={closeAllOverlays}>
                   <ArrowLeft size={15} /> Back
                 </button>
-                <h3 style={{ color: '#fff', fontSize: '1rem' }}>UPS Categories</h3>
+                <h3 style={{ color: '#fff', fontSize: '1rem' }}>UPS Menu</h3>
               </div>
               <button className="icon-btn" aria-label="Close menu" onClick={closeAllOverlays}>
                 <X size={17} />
               </button>
             </div>
             <div className="drawer-body" style={{ padding: 12 }}>
+              {/* Jumia Mobile Drawer Account Card */}
+              <div className="jm-drawer-account-box">
+                {customer ? (
+                  <>
+                    <div style={{ fontWeight: 800, color: 'var(--ups-black)', fontSize: '0.9rem' }}>
+                      Hi, {customer.full_name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--ups-gray)', marginBottom: 8 }}>
+                      +{customer.phone} • {customer.default_district}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => { setMobileMenuOpen(false); setAccountModalTab('orders'); }}
+                      >
+                        My Orders
+                      </button>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => { setMobileMenuOpen(false); setAccountModalTab('address'); }}
+                      >
+                        Address Book
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => { setMobileMenuOpen(false); setAuthModalMode('login'); }}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={() => { setMobileMenuOpen(false); setAuthModalMode('register'); }}
+                    >
+                      Register
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="jm-drawer-section-label">OUR CATEGORIES</div>
               {JUMIA_SIDEBAR_MENU.map((item, idx) => {
                 const Icon = item.icon;
@@ -1786,11 +1921,41 @@ export default function Storefront({ onToast }) {
         </div>
       )}
 
-      {/* ==================== CHECKOUT MODAL ==================== */}
+      {/* ==================== CUSTOMER AUTH MODAL (Jumia Sign In / Register) ==================== */}
+      {authModalMode && (
+        <CustomerAuthModal
+          initialMode={authModalMode}
+          storeInfo={storeInfo}
+          onClose={closeAllOverlays}
+          onAuthSuccess={(c) => setCustomer(c)}
+          onToast={onToast}
+        />
+      )}
+
+      {/* ==================== CUSTOMER MY ACCOUNT HUB (Orders & Address Book) ==================== */}
+      {accountModalTab && customer && (
+        <CustomerAccountModal
+          customer={customer}
+          initialTab={accountModalTab}
+          storeInfo={storeInfo}
+          onClose={closeAllOverlays}
+          onCustomerUpdated={(c) => setCustomer(c)}
+          onLogout={handleCustomerLogout}
+          onToast={onToast}
+        />
+      )}
+
+      {/* ==================== CHECKOUT MODAL (Jumia 3-Step Ordering) ==================== */}
       {checkoutItems && (
         <CheckoutModal
           items={checkoutItems}
           storeInfo={storeInfo}
+          customer={customer}
+          onOpenAuth={() => {
+            setCheckoutItems(null);
+            setAuthModalMode('login');
+          }}
+          onCustomerCreated={(c) => setCustomer(c)}
           onClose={closeAllOverlays}
           onOrderSuccess={() => {
             if (checkoutItems === cart) setCart([]);

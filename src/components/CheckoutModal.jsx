@@ -6,14 +6,16 @@ import {
   Copy,
   CreditCard,
   Landmark,
+  LogIn,
   MapPin,
   MessageSquare,
+  ShieldCheck,
   Smartphone,
   Truck,
   Upload,
   X,
 } from 'lucide-react';
-import { apiFetch, formatUgx } from '../utils/api';
+import { apiFetch, formatUgx, getCustomerToken, setCustomerToken } from '../utils/api';
 
 const PAYMENT_OPTIONS = [
   {
@@ -52,20 +54,30 @@ const UGANDA_DISTRICTS = [
 export default function CheckoutModal({
   items,
   storeInfo,
+  customer,
+  onOpenAuth,
+  onCustomerCreated,
   onClose,
   onOrderSuccess,
   onToast,
 }) {
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [district, setDistrict] = useState('Kampala');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [customerName, setCustomerName] = useState(customer?.full_name || '');
+  const [customerPhone, setCustomerPhone] = useState(customer?.phone || '');
+  const [customerEmail, setCustomerEmail] = useState(customer?.email || '');
+  const [district, setDistrict] = useState(customer?.default_district || 'Kampala');
+  const [deliveryAddress, setDeliveryAddress] = useState(customer?.default_address || '');
   const [prisonUnit, setPrisonUnit] = useState(
-    storeInfo?.prisonUnits?.[0]?.name || 'Luzira Upper / UPS Industries Showroom'
+    customer?.default_prison_unit ||
+      (storeInfo?.prisonUnits?.[0]
+        ? `${storeInfo.prisonUnits[0].name} (${storeInfo.prisonUnits[0].district})`
+        : 'Luzira Upper / UPS Industries Showroom (Kampala)')
   );
   const [regionFilter, setRegionFilter] = useState('All');
   const [paymentMethod, setPaymentMethod] = useState('MTN Mobile Money (MoMo)');
+
+  // Optional 1-click account creation during checkout (Jumia style!)
+  const [createAccount, setCreateAccount] = useState(false);
+  const [accountPassword, setAccountPassword] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -111,6 +123,35 @@ export default function CheckoutModal({
     setError('');
     setSubmitting(true);
     try {
+      let activeToken = getCustomerToken();
+
+      // If guest checked "Create my UPS Market account", register first seamlessly
+      if (!customer && createAccount && accountPassword.length >= 6) {
+        try {
+          const reg = await apiFetch('/api/customer/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              full_name: customerName,
+              phone: customerPhone,
+              email: customerEmail,
+              password: accountPassword,
+              default_district: district,
+              default_address: deliveryAddress,
+              default_prison_unit: prisonUnit,
+            }),
+          });
+          setCustomerToken(reg.token);
+          activeToken = reg.token;
+          if (onCustomerCreated) onCustomerCreated(reg.customer);
+        } catch {
+          // If phone already registered, continue placing the order cleanly
+        }
+      }
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (activeToken) headers.Authorization = `Bearer ${activeToken}`;
+
       const payload = {
         customer_name: customerName,
         customer_phone: customerPhone,
@@ -123,13 +164,13 @@ export default function CheckoutModal({
       };
       const data = await apiFetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload),
       });
       setCreatedOrder(data.order);
       setSmsInfo(data.sms);
       onOrderSuccess(data.order);
-      onToast(`Order ${data.order.reference_code} placed! Automated reference generated.`);
+      onToast(`Order ${data.order.reference_code} confirmed! Automated reference generated.`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -181,7 +222,7 @@ export default function CheckoutModal({
             <h3>
               {createdOrder
                 ? `Order Confirmed — Ref: ${createdOrder.reference_code}`
-                : 'Complete Your Uganda Prisons Service Order'}
+                : 'UPS Market Checkout (3 Simple Steps)'}
             </h3>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Close checkout">
@@ -189,233 +230,291 @@ export default function CheckoutModal({
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body" style={{ background: '#f1f1f2' }}>
           {error && <div className="alert alert-error">{error}</div>}
 
           {!createdOrder ? (
-            <form onSubmit={handlePlaceOrder}>
-              {/* Order Summary */}
-              <div className="panel-card" style={{ background: '#faf8f4', marginBottom: 18 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <strong style={{ color: 'var(--ups-green-deep)' }}>
-                    Order Summary ({totalQty} {totalQty === 1 ? 'item' : 'items'})
-                  </strong>
-                  <strong style={{ fontSize: '1.15rem', color: 'var(--ups-green)' }}>
-                    Total: {formatUgx(subtotal)}
-                  </strong>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem' }}
-                    >
-                      <span>
-                        {item.quantity} × {item.name}
-                      </span>
-                      <strong>{formatUgx(item.price_ugx * item.quantity)}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Automatic Bulk vs Small Purchase Banner */}
-              {isBulk ? (
-                <div className="alert alert-success" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <Truck size={20} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong>BULK ORDER QUALIFIED — FREE NATIONWIDE DELIVERY!</strong>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 500, marginTop: 2 }}>
-                      Uganda Prisons Service Sales Agents will deliver your order directly to your address anywhere in Uganda at <strong>UGX 0 delivery fee</strong> once verified.
-                    </div>
+            /* JUMIA 2-COLUMN 3-STEP CHECKOUT LAYOUT */
+            <form onSubmit={handlePlaceOrder} className="jm-checkout-grid">
+              <div className="jm-checkout-steps">
+                {/* STEP 1: CUSTOMER ADDRESS */}
+                <div className="jm-step-card">
+                  <div className="jm-step-head">
+                    <span><span className="jm-step-num">1</span> CUSTOMER ADDRESS</span>
+                    {!customer && onOpenAuth && (
+                      <button type="button" className="jm-step-link" onClick={onOpenAuth}>
+                        <LogIn size={13} /> Sign In for 1-Click Auto-Fill
+                      </button>
+                    )}
+                    {customer && (
+                      <span className="status-badge badge-green">Signed in: {customer.full_name}</span>
+                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="alert alert-gold" style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <Building2 size={20} style={{ flexShrink: 0, marginTop: 2 }} />
-                  <div>
-                    <strong>SMALL PURCHASE — NEARBY UGANDA PRISONS UNIT PICKUP</strong>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 500, marginTop: 2 }}>
-                      Select your nearest Uganda Prisons Service unit nationwide below to collect your order. (Orders of {bulkMinQty}+ units or {formatUgx(bulkMinUgx)}+ qualify for FREE bulk delivery.)
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Customer Details */}
-              <div className="form-grid" style={{ marginBottom: 18 }}>
-                <div className="form-group">
-                  <label className="form-label">Customer Full Name *</label>
-                  <input
-                    className="input"
-                    required
-                    placeholder="e.g. Okello John Bosco"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Phone Number (For Yoola SMS Alerts) *</label>
-                  <input
-                    className="input"
-                    required
-                    placeholder="e.g. 0772123456 or +256701..."
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">District *</label>
-                  <select
-                    className="select"
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                  >
-                    {UGANDA_DISTRICTS.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email Address (Optional)</label>
-                  <input
-                    className="input"
-                    type="email"
-                    placeholder="customer@example.com"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                  />
-                </div>
-
-                {isBulk ? (
-                  <div className="form-group full">
-                    <label className="form-label">
-                      <MapPin size={14} style={{ display: 'inline', marginRight: 4 }} />
-                      Full Delivery Address / Town / Landmark (Free UPS Bulk Delivery) *
-                    </label>
-                    <input
-                      className="input"
-                      required
-                      placeholder="e.g. Plot 14 Ntinda Road, Kampala — or School/Farm location"
-                      value={deliveryAddress}
-                      onChange={(e) => setDeliveryAddress(e.target.value)}
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <div className="form-group">
-                      <label className="form-label">Filter Prison Units by Region</label>
-                      <select
-                        className="select"
-                        value={regionFilter}
-                        onChange={(e) => {
-                          setRegionFilter(e.target.value);
-                          const nextList =
-                            e.target.value === 'All'
-                              ? storeInfo?.prisonUnits || []
-                              : (storeInfo?.prisonUnits || []).filter((u) => u.region === e.target.value);
-                          if (nextList[0]) setPrisonUnit(nextList[0].name);
-                        }}
-                      >
-                        <option value="All">All Regions of Uganda</option>
-                        <option value="Central">Central Region</option>
-                        <option value="Eastern">Eastern Region</option>
-                        <option value="Northern">Northern Region</option>
-                        <option value="Western">Western Region</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Select Nearby Uganda Prisons Unit for Pickup *</label>
-                      <select
-                        className="select"
-                        required
-                        value={prisonUnit}
-                        onChange={(e) => setPrisonUnit(e.target.value)}
-                      >
-                        {filteredUnits.map((u) => (
-                          <option key={u.id} value={`${u.name} (${u.district})`}>
-                            {u.name} — {u.district} ({u.region})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Payment Method */}
-              <div style={{ marginBottom: 16 }}>
-                <label className="form-label" style={{ display: 'block', marginBottom: 8 }}>
-                  Choose Official Payment Method *
-                </label>
-                <div className="form-grid">
-                  {PAYMENT_OPTIONS.map((opt) => {
-                    const Icon = opt.icon;
-                    const active = paymentMethod === opt.id;
-                    return (
-                      <div
-                        key={opt.id}
-                        className={`payment-method-card ${active ? 'selected' : ''}`}
-                        onClick={() => setPaymentMethod(opt.id)}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, color: 'var(--ups-green-deep)', fontSize: '0.9rem' }}>
-                          <Icon size={17} /> {opt.label}
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', marginTop: 4 }}>
-                          {opt.desc}
-                        </div>
+                  <div className="jm-step-body">
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label className="form-label">Customer Full Name *</label>
+                        <input
+                          className="input"
+                          required
+                          placeholder="e.g. Okello John Bosco"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                        />
                       </div>
-                    );
-                  })}
+                      <div className="form-group">
+                        <label className="form-label">Phone Number (Yoola SMS Alerts) *</label>
+                        <input
+                          className="input"
+                          required
+                          placeholder="e.g. 0772123456"
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">District *</label>
+                        <select className="select" value={district} onChange={(e) => setDistrict(e.target.value)}>
+                          {UGANDA_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Email Address (Optional)</label>
+                        <input
+                          className="input"
+                          type="email"
+                          placeholder="customer@example.com"
+                          value={customerEmail}
+                          onChange={(e) => setCustomerEmail(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {!customer && (
+                      <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px dashed var(--border)' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={createAccount}
+                            onChange={(e) => setCreateAccount(e.target.checked)}
+                          />
+                          Save my details &amp; create a UPS Market account (Track orders anytime!)
+                        </label>
+                        {createAccount && (
+                          <div className="form-group" style={{ marginTop: 8, maxWidth: 320 }}>
+                            <label className="form-label">Choose Account Password (min 6 chars) *</label>
+                            <input
+                              className="input"
+                              type="password"
+                              required
+                              minLength={6}
+                              placeholder="Create a password"
+                              value={accountPassword}
+                              onChange={(e) => setAccountPassword(e.target.value)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* STEP 2: DELIVERY DETAILS */}
+                <div className="jm-step-card">
+                  <div className="jm-step-head">
+                    <span><span className="jm-step-num">2</span> DELIVERY DETAILS</span>
+                    <span className={`status-badge ${isBulk ? 'badge-verified' : 'badge-gold'}`}>
+                      {isBulk ? 'FREE DOOR DELIVERY (BULK)' : 'PRISON PICK-UP STATION'}
+                    </span>
+                  </div>
+                  <div className="jm-step-body">
+                    {isBulk ? (
+                      <>
+                        <div className="alert alert-success" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
+                          <Truck size={20} style={{ flexShrink: 0, marginTop: 2 }} />
+                          <div>
+                            <strong>FREE NATIONWIDE BULK DOOR DELIVERY QUALIFIED!</strong>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>
+                              Uganda Prisons Service Sales Agents will deliver directly to your address anywhere in Uganda at <strong>UGX 0</strong>.
+                            </div>
+                          </div>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            <MapPin size={14} style={{ display: 'inline', marginRight: 4 }} />
+                            Exact Delivery Address / Street / Town / School / Farm *
+                          </label>
+                          <input
+                            className="input"
+                            required
+                            placeholder="e.g. Plot 14 Ntinda Road, Kampala"
+                            value={deliveryAddress}
+                            onChange={(e) => setDeliveryAddress(e.target.value)}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="alert alert-gold" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 12 }}>
+                          <Building2 size={20} style={{ flexShrink: 0, marginTop: 2 }} />
+                          <div>
+                            <strong>PICK-UP STATION — NEARBY UGANDA PRISONS UNIT</strong>
+                            <div style={{ fontSize: '0.8rem', fontWeight: 500 }}>
+                              Choose your nearest Uganda Prisons unit below to collect your order. *(Orders of {bulkMinQty}+ units or {formatUgx(bulkMinUgx)}+ unlock FREE door delivery.)*
+                            </div>
+                          </div>
+                        </div>
+                        <div className="form-grid">
+                          <div className="form-group">
+                            <label className="form-label">Filter by Region</label>
+                            <select
+                              className="select"
+                              value={regionFilter}
+                              onChange={(e) => {
+                                setRegionFilter(e.target.value);
+                                const nextList =
+                                  e.target.value === 'All'
+                                    ? storeInfo?.prisonUnits || []
+                                    : (storeInfo?.prisonUnits || []).filter((u) => u.region === e.target.value);
+                                if (nextList[0]) setPrisonUnit(`${nextList[0].name} (${nextList[0].district})`);
+                              }}
+                            >
+                              <option value="All">All Regions of Uganda</option>
+                              <option value="Central">Central Region</option>
+                              <option value="Eastern">Eastern Region</option>
+                              <option value="Northern">Northern Region</option>
+                              <option value="Western">Western Region</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label className="form-label">Select Nearby Uganda Prisons Unit *</label>
+                            <select className="select" required value={prisonUnit} onChange={(e) => setPrisonUnit(e.target.value)}>
+                              {filteredUnits.map((u) => (
+                                <option key={u.id} value={`${u.name} (${u.district})`}>
+                                  {u.name} — {u.district} ({u.region})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* STEP 3: PAYMENT METHOD */}
+                <div className="jm-step-card">
+                  <div className="jm-step-head">
+                    <span><span className="jm-step-num">3</span> PAYMENT METHOD</span>
+                  </div>
+                  <div className="jm-step-body">
+                    <div className="form-grid" style={{ marginBottom: 12 }}>
+                      {PAYMENT_OPTIONS.map((opt) => {
+                        const Icon = opt.icon;
+                        const active = paymentMethod === opt.id;
+                        return (
+                          <div
+                            key={opt.id}
+                            className={`payment-method-card ${active ? 'selected' : ''}`}
+                            onClick={() => setPaymentMethod(opt.id)}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, color: 'var(--ups-black)', fontSize: '0.86rem' }}>
+                              <Icon size={16} color={active ? '#9e1b4d' : '#164785'} /> {opt.label}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: 3 }}>
+                              {opt.desc}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="alert alert-info" style={{ fontSize: '0.82rem', marginBottom: 0 }}>
+                      {paymentMethod === 'MTN Mobile Money (MoMo)' && (
+                        <div>
+                          <strong>MTN Mobile Money / MoMo:</strong> Pay <strong>{formatUgx(subtotal)}</strong> to{' '}
+                          <strong>{storeInfo?.payments?.mtnMomo?.number}</strong> ({storeInfo?.payments?.mtnMomo?.accountName}), then submit your Transaction ID &amp; receipt on the next screen.
+                        </div>
+                      )}
+                      {paymentMethod === 'Airtel Money' && (
+                        <div>
+                          <strong>Airtel Money:</strong> Pay <strong>{formatUgx(subtotal)}</strong> to{' '}
+                          <strong>{storeInfo?.payments?.airtelMoney?.number}</strong> ({storeInfo?.payments?.airtelMoney?.accountName}), then upload your confirmation receipt.
+                        </div>
+                      )}
+                      {paymentMethod === 'Bank Transfer (UPS Account)' && (
+                        <div>
+                          <strong>Official UPS Bank Account:</strong> {storeInfo?.payments?.bank?.bankName} ({storeInfo?.payments?.bank?.branch}) — Account: <strong>{storeInfo?.payments?.bank?.accountName}</strong> • No: <strong>{storeInfo?.payments?.bank?.accountNumber}</strong>.
+                        </div>
+                      )}
+                      {paymentMethod === 'Cash / Pay on Delivery' && (
+                        <div>
+                          <strong>Cash / Pay on Delivery:</strong> Your order enters the Sales Admin verification queue and you will receive an automatic Yoola SMS once approved!
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Dynamic Payment Instructions */}
-              <div className="alert alert-info" style={{ fontSize: '0.84rem' }}>
-                {paymentMethod === 'MTN Mobile Money (MoMo)' && (
-                  <div>
-                    <strong>MTN Mobile Money / MoMo Instructions:</strong> Pay <strong>{formatUgx(subtotal)}</strong> to{' '}
-                    <strong>{storeInfo?.payments?.mtnMomo?.number}</strong> ({storeInfo?.payments?.mtnMomo?.accountName}). Use your automated Purchase Reference generated in the next step as the reason/reference.
+              {/* RIGHT STICKY JUMIA ORDER SUMMARY SIDEBAR */}
+              <aside className="jm-checkout-summary">
+                <div className="jm-step-card">
+                  <div className="jm-step-head">
+                    <span>ORDER SUMMARY ({totalQty})</span>
                   </div>
-                )}
-                {paymentMethod === 'Airtel Money' && (
-                  <div>
-                    <strong>Airtel Money Instructions:</strong> Pay <strong>{formatUgx(subtotal)}</strong> to{' '}
-                    <strong>{storeInfo?.payments?.airtelMoney?.number}</strong> ({storeInfo?.payments?.airtelMoney?.accountName}). Keep your Airtel Money Transaction ID for proof upload.
-                  </div>
-                )}
-                {paymentMethod === 'Bank Transfer (UPS Account)' && (
-                  <div>
-                    <strong>Official Uganda Prisons Service Bank Account:</strong>
-                    <br />
-                    Bank: <strong>{storeInfo?.payments?.bank?.bankName}</strong> | Branch: <strong>{storeInfo?.payments?.bank?.branch}</strong>
-                    <br />
-                    Account Name: <strong>{storeInfo?.payments?.bank?.accountName}</strong> | Account No: <strong>{storeInfo?.payments?.bank?.accountNumber}</strong>
-                  </div>
-                )}
-                {paymentMethod === 'Cash / Pay on Delivery' && (
-                  <div>
-                    <strong>Cash / Pay on Delivery:</strong> Your order will receive an automated Purchase Reference and enter the Uganda Prisons Sales Admin verification queue. You will receive an SMS via Yoola SMS once approved!
-                  </div>
-                )}
-              </div>
+                  <div className="jm-step-body">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12, maxHeight: 220, overflowY: 'auto' }}>
+                      {items.map((item) => (
+                        <div key={item.id} style={{ display: 'flex', gap: 9, alignItems: 'center', fontSize: '0.8rem' }}>
+                          <img src={item.image_url} alt={item.name} style={{ width: 44, height: 36, objectFit: 'cover', borderRadius: 5 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, color: 'var(--ups-black)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {item.name}
+                            </div>
+                            <div style={{ color: 'var(--ups-gray)' }}>Qty: {item.quantity}</div>
+                          </div>
+                          <strong>{formatUgx(item.price_ugx * item.quantity)}</strong>
+                        </div>
+                      ))}
+                    </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button type="button" className="btn btn-outline" onClick={onClose}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={submitting}>
-                  {submitting ? 'Generating Reference...' : `Confirm Order & Get Purchase Reference (${formatUgx(subtotal)})`}
-                </button>
-              </div>
+                    <div className="jm-summary-line">
+                      <span>Items Total ({totalQty})</span>
+                      <strong>{formatUgx(subtotal)}</strong>
+                    </div>
+                    <div className="jm-summary-line">
+                      <span>Delivery Fee</span>
+                      <strong style={{ color: '#15803d' }}>FREE (UGX 0)</strong>
+                    </div>
+                    <div className="jm-summary-total">
+                      <span>Total</span>
+                      <strong>{formatUgx(subtotal)}</strong>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ width: '100%', marginTop: 12 }}
+                      disabled={submitting}
+                    >
+                      <ShieldCheck size={16} />
+                      {submitting ? 'Confirming Order...' : 'CONFIRM ORDER'}
+                    </button>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--ups-gray)', textAlign: 'center', marginTop: 8 }}>
+                      Automated Purchase Reference &amp; Yoola SMS confirmation sent immediately.
+                    </p>
+                  </div>
+                </div>
+              </aside>
             </form>
           ) : (
-            /* STEP 2: AUTOMATED PURCHASE REFERENCE + PROOF OF PAYMENT SUBMISSION */
-            <div>
+            /* STEP 4: AUTOMATED PURCHASE REFERENCE + PROOF OF PAYMENT SUBMISSION */
+            <div className="panel-card" style={{ marginBottom: 0 }}>
               <div className="alert alert-success" style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                 <CheckCircle2 size={24} style={{ flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <strong>Order Recorded Successfully for {createdOrder.customer_name}!</strong>
+                  <strong>Order Confirmed for {createdOrder.customer_name}!</strong>
                   <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.88rem' }}>Automated Purchase Reference:</span>
                     <span
@@ -438,48 +537,17 @@ export default function CheckoutModal({
                   </div>
                   <div style={{ fontSize: '0.82rem', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <MessageSquare size={14} />
-                    Yoola SMS Notification Status:{' '}
+                    Yoola SMS Alert:{' '}
                     <strong>
-                      {smsInfo?.simulated
-                        ? 'Logged (Sandbox/Test Mode — Add Yoola API Key in Admin for Live SMS)'
-                        : smsInfo?.ok
-                        ? `Sent to ${createdOrder.customer_phone}`
-                        : 'Queued / Logged'}
+                      {smsInfo?.ok ? `Sent to ${createdOrder.customer_phone}` : 'Logged & Queued'}
                     </strong>
                   </div>
                 </div>
               </div>
 
-              <div className="panel-card" style={{ background: '#faf8f4' }}>
-                <div className="form-grid" style={{ fontSize: '0.86rem' }}>
-                  <div>
-                    <span style={{ color: 'var(--ink-muted)' }}>Customer Full Name:</span>
-                    <div><strong>{createdOrder.customer_name}</strong></div>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--ink-muted)' }}>Total Amount:</span>
-                    <div><strong style={{ color: 'var(--ups-green)' }}>{formatUgx(createdOrder.total_ugx)}</strong></div>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--ink-muted)' }}>Payment Method:</span>
-                    <div><strong>{createdOrder.payment_method}</strong></div>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--ink-muted)' }}>Fulfillment:</span>
-                    <div>
-                      <strong>
-                        {createdOrder.delivery_type === 'bulk_free_delivery'
-                          ? `FREE Bulk Delivery — ${createdOrder.delivery_address} (${createdOrder.district})`
-                          : `Pickup at ${createdOrder.prison_unit}`}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {createdOrder.payment_method !== 'Cash / Pay on Delivery' && !proofSubmitted ? (
-                <form onSubmit={handleUploadProof} className="panel-card">
-                  <h4 style={{ color: 'var(--ups-green-deep)', marginBottom: 6 }}>
+                <form onSubmit={handleUploadProof} className="panel-card" style={{ background: '#f8f9fa' }}>
+                  <h4 style={{ color: 'var(--ups-black)', marginBottom: 6 }}>
                     Submit Proof of Payment to Sales Admin
                   </h4>
                   <p style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginBottom: 14 }}>
@@ -491,7 +559,7 @@ export default function CheckoutModal({
                       <input
                         className="input"
                         required
-                        placeholder="e.g. MP261121.1842.A9201 or Bank Slip No."
+                        placeholder="e.g. MP261122.1842.A9201 or Bank Slip No."
                         value={txRef}
                         onChange={(e) => setTxRef(e.target.value)}
                       />
@@ -509,7 +577,7 @@ export default function CheckoutModal({
                       <label className="form-label">Additional Payment Notes (Optional)</label>
                       <input
                         className="input"
-                        placeholder="e.g. Paid from 0772xxxxxx at 6:20 PM"
+                        placeholder="e.g. Paid from 0772xxxxxx"
                         value={proofNotes}
                         onChange={(e) => setProofNotes(e.target.value)}
                       />
@@ -517,28 +585,28 @@ export default function CheckoutModal({
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 14, flexWrap: 'wrap', gap: 10 }}>
                     <button type="button" className="btn btn-outline" onClick={onClose}>
-                      I&apos;ll Submit Proof Later (via Track Order)
+                      I&apos;ll Submit Proof Later
                     </button>
                     <button type="submit" className="btn btn-primary" disabled={uploadingProof}>
                       <Upload size={16} />
-                      {uploadingProof ? 'Uploading Proof...' : 'Send Proof of Payment for Verification'}
+                      {uploadingProof ? 'Uploading Proof...' : 'Send Proof of Payment'}
                     </button>
                   </div>
                 </form>
               ) : (
-                <div className="alert alert-info">
+                <div className="alert alert-info" style={{ marginBottom: 0 }}>
                   {proofSubmitted ? (
                     <>
-                      <strong>Proof of Payment Received!</strong> Our Uganda Prisons Sales Admin will verify your payment shortly and send an automatic Yoola SMS confirmation to <strong>{createdOrder.customer_phone}</strong> before dispatch/pickup.
+                      <strong>Proof of Payment Received!</strong> Sales Admin will verify your payment shortly and send an automatic Yoola SMS confirmation to <strong>{createdOrder.customer_phone}</strong>.
                     </>
                   ) : (
                     <>
-                      <strong>Cash / Pay on Delivery Order Queued for Admin Verification!</strong> Keep your reference <strong>{createdOrder.reference_code}</strong>. You will receive an SMS once approved by Sales Admin.
+                      <strong>Cash / Pay on Delivery Order Queued for Admin Verification!</strong> Keep your reference <strong>{createdOrder.reference_code}</strong>. You will receive an SMS once approved!
                     </>
                   )}
                   <div style={{ marginTop: 12 }}>
                     <button className="btn btn-primary btn-sm" onClick={onClose}>
-                      Done — Return to Store
+                      Done — Continue Shopping
                     </button>
                   </div>
                 </div>

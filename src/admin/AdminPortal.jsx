@@ -17,12 +17,14 @@ import {
   Plus,
   Printer,
   RefreshCw,
+  Search,
   Send,
   Settings,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Trash2,
+  Users,
   Wallet,
   X,
   XCircle,
@@ -39,15 +41,33 @@ import {
   setAdminToken,
 } from '../utils/api';
 
-const TABS = [
-  { id: 'overview', label: 'Dashboard Overview', icon: LayoutDashboard },
-  { id: 'orders', label: 'Orders & Verification', icon: ShoppingBag },
-  { id: 'products', label: 'Products & Price Tags', icon: Package },
-  { id: 'adverts', label: 'Adverts & Auto-Animation', icon: Film },
-  { id: 'news', label: 'News & Announcements', icon: Newspaper },
-  { id: 'finance', label: 'Financial Management', icon: Wallet },
-  { id: 'settings', label: 'Settings, AWS & Yoola SMS', icon: Settings },
+const TAB_GROUPS = [
+  {
+    title: 'MARKETPLACE OPERATIONS',
+    items: [
+      { id: 'overview', label: 'Seller Center Overview', icon: LayoutDashboard },
+      { id: 'orders', label: 'Orders & Verification', icon: ShoppingBag },
+      { id: 'customers', label: 'Registered Customers', icon: Users },
+    ],
+  },
+  {
+    title: 'CATALOG & MARKETING',
+    items: [
+      { id: 'products', label: 'Products & Price Tags', icon: Package },
+      { id: 'adverts', label: 'Adverts & Auto-Animation', icon: Film },
+      { id: 'news', label: 'News & Announcements', icon: Newspaper },
+    ],
+  },
+  {
+    title: 'FINANCE & CLOUD SYSTEM',
+    items: [
+      { id: 'finance', label: 'Financial Management', icon: Wallet },
+      { id: 'settings', label: 'Settings, AWS & Yoola SMS', icon: Settings },
+    ],
+  },
 ];
+
+const TABS = TAB_GROUPS.flatMap((g) => g.items);
 
 export default function AdminPortal({ onNavigateStore, onToast }) {
   const [admin, setAdmin] = useState(null);
@@ -60,6 +80,8 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
   const [tab, setTab] = useState('overview');
   const [dashboard, setDashboard] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [quickSearch, setQuickSearch] = useState('');
   const [products, setProducts] = useState([]);
   const [adverts, setAdverts] = useState([]);
   const [newsList, setNewsList] = useState([]);
@@ -178,6 +200,9 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
         if (orderSearch.trim()) qs.set('search', orderSearch.trim());
         const res = await adminFetch(`/api/admin/orders?${qs.toString()}`);
         setOrders(res.orders || []);
+      } else if (currentTab === 'customers') {
+        const res = await adminFetch('/api/admin/customers');
+        setCustomers(res.customers || []);
       } else if (currentTab === 'products') {
         const res = await adminFetch('/api/admin/products');
         setProducts(res.products || []);
@@ -668,13 +693,15 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
     );
   }
 
-  // ==================== MAIN ADMIN DASHBOARD ====================
+  // ==================== MAIN JUMIA-STYLE SELLER CENTER ADMIN LAYOUT ====================
   return (
-    <div className="admin-shell">
-      {/* Sidebar */}
-      <aside className="admin-sidebar no-print">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '6px 8px 18px', borderBottom: '1px solid rgba(229,184,42,0.35)', marginBottom: 14 }}>
-          <div className="brand-emblem" style={{ width: 52, height: 52, padding: 3 }}>
+    <div className="sc-wrapper">
+      <div className="uganda-ribbon no-print" />
+
+      {/* Jumia Seller Center Executive Top Header Bar */}
+      <header className="sc-header no-print">
+        <div className="sc-header-left">
+          <div className="brand-emblem" style={{ width: 42, height: 42, padding: 2 }}>
             <img
               src="/images/prisonslogo-1.png"
               alt="Uganda Prisons Service Official Logo"
@@ -682,98 +709,170 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
             />
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-serif)', fontWeight: 800, color: '#fff', fontSize: '0.98rem', lineHeight: 1.2 }}>
-              UPS Store Admin
-            </div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--ups-gold-bright)', fontWeight: 700 }}>{admin.name}</div>
+            <div className="sc-brand-title">UPS SELLER &amp; ADMIN CENTER</div>
+            <div className="sc-brand-sub">Uganda Prisons Service Official E-Commerce Control Hub</div>
           </div>
         </div>
 
-        <div style={{ flex: 1 }}>
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            return (
-              <button
-                key={t.id}
-                className={`admin-nav-btn ${tab === t.id ? 'active' : ''}`}
-                onClick={() => setTab(t.id)}
-              >
-                <Icon size={17} />
-                <span>{t.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <form
+          className="sc-global-search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setOrderSearch(quickSearch);
+            setTab('orders');
+          }}
+        >
+          <Search size={15} className="sc-search-ico" />
+          <input
+            placeholder="Quick search order ref, customer name, or phone..."
+            value={quickSearch}
+            onChange={(e) => setQuickSearch(e.target.value)}
+          />
+          <button type="submit">FIND</button>
+        </form>
 
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.12)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="sc-header-right">
+          <button className="btn btn-primary btn-sm" onClick={() => setTab('products')}>
+            <Plus size={14} /> Add Product
+          </button>
           <button className="btn btn-gold btn-sm" onClick={onNavigateStore}>
-            <ExternalLink size={14} /> View Live Storefront
+            <ExternalLink size={14} /> Storefront
           </button>
-          <button className="admin-nav-btn" onClick={handleLogout} style={{ color: '#fca5a5' }}>
-            <LogOut size={16} /> Sign Out
+          <button className="btn btn-outline btn-sm" onClick={() => loadActiveTab(tab)} title="Refresh data">
+            <RefreshCw size={14} />
           </button>
         </div>
-      </aside>
+      </header>
 
-      {/* Main Content */}
-      <main className="admin-main">
-        <div className="admin-topbar no-print">
-          <div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', color: 'var(--ups-green-deep)', fontSize: '1.6rem' }}>
-              {TABS.find((x) => x.id === tab)?.label}
-            </h1>
-            <div style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
-              Uganda Prisons Service Online Shopping &amp; Production Management System
+      <div className="admin-shell sc-shell">
+        {/* Grouped Jumia Seller Center Sidebar */}
+        <aside className="admin-sidebar sc-sidebar no-print">
+          <div className="sc-admin-profile-card">
+            <div className="sc-avatar">
+              <ShieldCheck size={18} color="#f5cd47" />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 800, color: '#fff', fontSize: '0.86rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {admin.name}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--ups-gold-bright)' }}>{admin.email}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-outline btn-sm" onClick={() => loadActiveTab(tab)}>
-              <RefreshCw size={14} /> Refresh
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={onNavigateStore}>
-              <ExternalLink size={14} /> Open Website
+
+          <div style={{ flex: 1 }}>
+            {TAB_GROUPS.map((group) => (
+              <div key={group.title} className="sc-nav-group">
+                <div className="sc-nav-group-label">{group.title}</div>
+                {group.items.map((t) => {
+                  const Icon = t.icon;
+                  const showBadge =
+                    t.id === 'orders' && Number(dashboard?.stats?.pendingVerification || 0) > 0;
+                  return (
+                    <button
+                      key={t.id}
+                      className={`admin-nav-btn ${tab === t.id ? 'active' : ''}`}
+                      onClick={() => setTab(t.id)}
+                    >
+                      <Icon size={16} />
+                      <span style={{ flex: 1 }}>{t.label}</span>
+                      {showBadge && (
+                        <span className="sc-pending-pill">{dashboard.stats.pendingVerification}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ borderTop: '1px solid rgba(229,184,42,0.28)', paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <button className="admin-nav-btn" onClick={handleLogout} style={{ color: '#fca5a5' }}>
+              <LogOut size={16} /> Sign Out
             </button>
           </div>
-        </div>
+        </aside>
 
-        {/* ==================== TAB 1: OVERVIEW ==================== */}
-        {tab === 'overview' && dashboard && (
-          <div>
-            <div className="kpi-grid">
-              <div className="kpi-card">
-                <div className="kpi-label">Pending Verifications</div>
-                <div className="kpi-value" style={{ color: '#b45309' }}>
-                  {dashboard.stats.pendingVerification}
-                </div>
-                <div className="kpi-sub">Orders awaiting payment / POD check</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Today&apos;s Income</div>
-                <div className="kpi-value">{formatUgx(dashboard.stats.todayIncome)}</div>
-                <div className="kpi-sub">Net today: {formatUgx(dashboard.stats.todayNet)}</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Total Ledger Balance</div>
-                <div className="kpi-value" style={{ color: '#15803d' }}>
-                  {formatUgx(dashboard.stats.netBalance)}
-                </div>
-                <div className="kpi-sub">Income: {formatUgx(dashboard.stats.totalIncome)}</div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Total Orders</div>
-                <div className="kpi-value">{dashboard.stats.totalOrders}</div>
-                <div className="kpi-sub">
-                  Bulk: {dashboard.stats.bulkOrders} • Unit Pickup: {dashboard.stats.pickupOrders}
-                </div>
-              </div>
-              <div className="kpi-card">
-                <div className="kpi-label">Catalog &amp; Media</div>
-                <div className="kpi-value">{dashboard.stats.activeProducts} Products</div>
-                <div className="kpi-sub">
-                  {dashboard.stats.totalAdverts} Adverts • {dashboard.stats.totalNews} News
-                </div>
+        {/* Main Content */}
+        <main className="admin-main sc-main">
+          <div className="sc-page-bar no-print">
+            <div>
+              <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 800, color: 'var(--ups-black)', fontSize: '1.35rem' }}>
+                {TABS.find((x) => x.id === tab)?.label}
+              </h1>
+              <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
+                Manage UPS Market catalog, customer accounts, payment verifications, animated adverts, daily finance &amp; Yoola SMS
               </div>
             </div>
+            {dashboard && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span className="status-badge badge-blue">{dashboard.integrations.database}</span>
+                <span className={`status-badge ${dashboard.integrations.storage.awsConfigured ? 'badge-verified' : 'badge-gold'}`}>
+                  {dashboard.integrations.storage.awsConfigured ? 'AWS S3 Active' : 'Local Storage'}
+                </span>
+                <span className={`status-badge ${dashboard.integrations.yoolaSms.configured ? 'badge-verified' : 'badge-gold'}`}>
+                  {dashboard.integrations.yoolaSms.configured
+                    ? `Yoola SMS (${dashboard.integrations.yoolaSms.sandbox ? 'Sandbox' : 'LIVE'})`
+                    : 'Yoola SMS Unconfigured'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ==================== TAB 1: OVERVIEW ==================== */}
+          {tab === 'overview' && dashboard && (
+            <div>
+              {/* Jumia Seller Center "Action Needed" Quick Strip */}
+              <div className="sc-action-strip">
+                <button className="sc-action-card" onClick={() => { setOrderStatusFilter('needs_verification'); setTab('orders'); }}>
+                  <strong>{dashboard.stats.pendingVerification}</strong>
+                  <span>Pending Verifications</span>
+                  <em>Review Now →</em>
+                </button>
+                <button className="sc-action-card" onClick={() => setTab('customers')}>
+                  <strong>{dashboard.stats.totalCustomers || 0}</strong>
+                  <span>Registered Customers</span>
+                  <em>View Accounts →</em>
+                </button>
+                <button className="sc-action-card" onClick={() => setTab('products')}>
+                  <strong>{dashboard.stats.lowStockProducts || 0}</strong>
+                  <span>Low Stock Items (≤10)</span>
+                  <em>Restock Catalog →</em>
+                </button>
+                <button className="sc-action-card" onClick={() => setTab('finance')}>
+                  <strong>{formatUgx(dashboard.stats.todayNet)}</strong>
+                  <span>Today&apos;s Net Cashflow</span>
+                  <em>Open Ledger →</em>
+                </button>
+              </div>
+
+              <div className="kpi-grid">
+                <div className="kpi-card">
+                  <div className="kpi-label">Today&apos;s Income</div>
+                  <div className="kpi-value">{formatUgx(dashboard.stats.todayIncome)}</div>
+                  <div className="kpi-sub">Expenses: {formatUgx(dashboard.stats.todayExpense)}</div>
+                </div>
+                <div className="kpi-card">
+                  <div className="kpi-label">Total Ledger Balance</div>
+                  <div className="kpi-value" style={{ color: '#15803d' }}>
+                    {formatUgx(dashboard.stats.netBalance)}
+                  </div>
+                  <div className="kpi-sub">Cumulative Income: {formatUgx(dashboard.stats.totalIncome)}</div>
+                </div>
+                <div className="kpi-card">
+                  <div className="kpi-label">Total Orders</div>
+                  <div className="kpi-value">{dashboard.stats.totalOrders}</div>
+                  <div className="kpi-sub">
+                    Bulk Free: {dashboard.stats.bulkOrders} • Unit Pickup: {dashboard.stats.pickupOrders}
+                  </div>
+                </div>
+                <div className="kpi-card">
+                  <div className="kpi-label">Active Catalog &amp; Media</div>
+                  <div className="kpi-value">{dashboard.stats.activeProducts} Products</div>
+                  <div className="kpi-sub">
+                    {dashboard.stats.totalAdverts} Adverts • {dashboard.stats.totalNews} News
+                  </div>
+                </div>
+              </div>
 
             {/* Cloud & Integrations Status */}
             <div className="panel-card">
@@ -1149,6 +1248,65 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ==================== TAB: REGISTERED CUSTOMERS ==================== */}
+        {tab === 'customers' && (
+          <div>
+            <div className="panel-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <h3 style={{ color: 'var(--ups-black)' }}>Registered UPS Market Customers ({customers.length})</h3>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--ink-muted)' }}>
+                    Customers who registered on UPS Market for 1-click ordering, saved pickup units, and order history.
+                  </p>
+                </div>
+                <button className="btn btn-outline btn-sm" onClick={() => loadActiveTab('customers')}>
+                  <RefreshCw size={14} /> Refresh Directory
+                </button>
+              </div>
+              <div className="table-wrap">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Customer Name</th>
+                      <th>Phone &amp; Email</th>
+                      <th>District &amp; Pickup Unit</th>
+                      <th>Orders</th>
+                      <th>Verified Spend</th>
+                      <th>Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: 30, color: 'var(--ink-muted)' }}>
+                          No registered customer accounts yet. New registrations on the storefront will appear here automatically.
+                        </td>
+                      </tr>
+                    ) : (
+                      customers.map((c) => (
+                        <tr key={c.id}>
+                          <td><strong>{c.full_name}</strong></td>
+                          <td>
+                            <code>+{c.phone}</code>
+                            {c.email && <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)' }}>{c.email}</div>}
+                          </td>
+                          <td style={{ fontSize: '0.82rem' }}>
+                            <strong>{c.default_district}</strong>
+                            <div>{c.default_prison_unit || c.default_address || '—'}</div>
+                          </td>
+                          <td><span className="status-badge badge-blue">{c.order_count} orders</span></td>
+                          <td><strong style={{ color: 'var(--ups-maroon)' }}>{formatUgx(c.verified_spend_ugx)}</strong></td>
+                          <td style={{ fontSize: '0.8rem' }}>{formatDate(c.created_at)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
@@ -2113,6 +2271,7 @@ export default function AdminPortal({ onNavigateStore, onToast }) {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const { initDb } = require('./db');
 const publicRoutes = require('./routes/public');
 const adminRoutes = require('./routes/admin');
+const customerRoutes = require('./routes/customer');
 const { UPLOADS_ROOT } = require('./services/storage');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API routes
 app.use('/api', publicRoutes);
+app.use('/api/customer', customerRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Serve built React frontend in production (and locally after vite build)

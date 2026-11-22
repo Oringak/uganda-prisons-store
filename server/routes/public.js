@@ -5,6 +5,7 @@ const { query, get, run, insertAndGetId, getSettingsMap, isPostgres } = require(
 const { UGANDA_PRISON_UNITS } = require('../data/prisonUnits');
 const { uploadMediaFile, getStorageStatus } = require('../services/storage');
 const { sendOrderCreatedSms, sendProofSubmittedSms } = require('../services/yoolaSms');
+const { optionalCustomer } = require('../middleware/auth');
 
 const router = express.Router();
 const upload = multer({
@@ -150,7 +151,7 @@ router.get('/news', async (req, res) => {
   }
 });
 
-router.post('/orders', async (req, res) => {
+router.post('/orders', optionalCustomer, async (req, res) => {
   try {
     const {
       customer_name,
@@ -243,13 +244,14 @@ router.post('/orders', async (req, res) => {
 
     const orderId = await insertAndGetId(
       `INSERT INTO orders (
-        reference_code, customer_name, customer_phone, customer_email, district,
+        reference_code, customer_id, customer_name, customer_phone, customer_email, district,
         delivery_type, delivery_address, prison_unit, payment_method,
         payment_status, order_status, subtotal_ugx, delivery_fee_ugx, total_ugx,
         items_json, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         reference_code,
+        req.customer?.id || null,
         customer_name.trim(),
         customer_phone.trim(),
         customer_email.trim(),
