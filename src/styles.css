@@ -3688,8 +3688,16 @@ a {
   }
 
   .jm-hero-carousel .advert-stage {
-    min-height: 220px;
+    min-height: 285px;
     border-radius: 8px;
+  }
+
+  .jm-hero-carousel .advert-overlay {
+    padding: 12px 14px 16px;
+  }
+
+  .jm-hero-carousel .advert-bottom-row {
+    gap: 8px;
   }
 
   /* Jumia Mobile 4x2 Quick Visual Tiles */
