@@ -550,10 +550,154 @@ async function seedInitialData() {
   }
 }
 
+async function syncUpsRealMedia() {
+  const now = new Date().toISOString();
+
+  // Add authentic Uganda Prisons Service real-photo products idempotently
+  const extraProducts = [
+    {
+      sku: 'UPS-FUR-005',
+      name: 'Executive Mahogany Office Desk & Maroon Chairs Set',
+      category: 'Furniture',
+      description: 'Official Uganda Prisons Service executive mahogany office desk paired with carved maroon-upholstered visitor chairs. Hand-built by master joiners at Luzira Prison Industries.',
+      specifications: 'Includes: 1 Executive Desk + 3 Carved Chairs | Solid Seasoned Mahogany | Official Maroon Velvet Finish',
+      price_ugx: 2450000,
+      unit_label: 'Office Set',
+      stock_qty: 8,
+      bulk_min_qty: 2,
+      image_url: '/images/ups/ups-11.jpg',
+      featured: true,
+    },
+    {
+      sku: 'UPS-LTH-003',
+      name: 'Genuine Leather Executive Briefcase & Dress Shoes',
+      category: 'Leather Footwear',
+      description: 'Hand-stitched genuine Ugandan cowhide leather briefcase and polished formal shoes showcased at Uganda Prisons Service national exhibitions.',
+      specifications: '100% Full-Grain Cowhide | Hand-Stitched Brass Hardware | Matching Formal Shoes Available',
+      price_ugx: 260000,
+      unit_label: 'Bundle / Set',
+      stock_qty: 30,
+      bulk_min_qty: 5,
+      image_url: '/images/ups/ups-06.jpg',
+      featured: true,
+    },
+    {
+      sku: 'UPS-LTH-004',
+      name: 'Handcrafted Leather Belts & Steppers Combo',
+      category: 'Leather Footwear',
+      description: 'Heavy-duty full-grain leather belts paired with comfortable hand-stitched UPS leather steppers/sandals crafted for long-lasting everyday use.',
+      specifications: 'Genuine Leather Belt + Leather Steppers | Sizes EU 38-46 | Brown & Black Options',
+      price_ugx: 95000,
+      unit_label: 'Combo Pack',
+      stock_qty: 65,
+      bulk_min_qty: 8,
+      image_url: '/images/ups/ups-07.jpg',
+      featured: false,
+    },
+    {
+      sku: 'UPS-CRF-001',
+      name: 'Handwoven Artisanal Baskets & Wooden Crafts Set',
+      category: 'Other',
+      description: 'Vibrant handwoven market baskets and carved hardwood household crafts produced by Uganda Prisons Service rehabilitation vocational units.',
+      specifications: 'Set of 3 Handwoven Baskets | Durable Traditional Weave | Assorted National Colors',
+      price_ugx: 55000,
+      unit_label: 'Set of 3',
+      stock_qty: 90,
+      bulk_min_qty: 10,
+      image_url: '/images/ups/ups-13.jpg',
+      featured: false,
+    },
+  ];
+
+  for (const p of extraProducts) {
+    const exists = await get('SELECT id FROM products WHERE sku = ?', [p.sku]);
+    if (!exists) {
+      await run(
+        `INSERT INTO products (sku, name, category, description, specifications, price_ugx, unit_label, stock_qty, bulk_min_qty, image_url, featured, active, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          p.sku, p.name, p.category, p.description, p.specifications,
+          p.price_ugx, p.unit_label, p.stock_qty, p.bulk_min_qty, p.image_url,
+          isPostgres ? p.featured : (p.featured ? 1 : 0),
+          isPostgres ? true : 1,
+          now, now,
+        ]
+      );
+    }
+  }
+
+  // Add authentic real-photo UPS adverts idempotently
+  const extraAdverts = [
+    {
+      title: 'Luzira Prison Industries Carpentry Workshop',
+      subtitle: 'Watch craftsmanship in action — solid Mahogany executive desks, beds & dining sets built to last generations.',
+      badge_text: 'LIVE WORKSHOP SHOWCASE',
+      price_callout: 'Executive Sets From UGX 1.25M',
+      cta_text: 'Shop Furniture',
+      media_type: 'image',
+      media_url: '/images/ups/ups-17.jpg',
+      animation_style: 'ken-burns',
+      duration_sec: 6,
+      sort_order: 0,
+    },
+    {
+      title: 'Official UPS Certified Seed Warehouses',
+      subtitle: 'High-germination Improved Hybrid Maize & Maksoy Soya Bean seeds ready for bulk farm-gate delivery across Uganda.',
+      badge_text: 'UPS AGRICULTURAL FARMS',
+      price_callout: 'Bulk Free Delivery Nationwide',
+      cta_text: 'Order Certified Seeds',
+      media_type: 'image',
+      media_url: '/images/ups/ups-21.jpg',
+      animation_style: 'gold-spotlight',
+      duration_sec: 6,
+      sort_order: 1,
+    },
+    {
+      title: 'Authentic Handcrafted UPS Leather Shoes',
+      subtitle: 'Proudly made in Uganda Prisons Leather Workshops — genuine cowhide shoes, steppers, sandals & executive briefcases.',
+      badge_text: 'PROUDLY MADE IN UGANDA',
+      price_callout: 'Shoes From UGX 65,000',
+      cta_text: 'Shop Leather Goods',
+      media_type: 'image',
+      media_url: '/images/ups/ups-24.jpg',
+      animation_style: 'kinetic-slide',
+      duration_sec: 6,
+      sort_order: 2,
+    },
+  ];
+
+  for (const a of extraAdverts) {
+    const exists = await get('SELECT id FROM adverts WHERE media_url = ?', [a.media_url]);
+    if (!exists) {
+      await run(
+        `INSERT INTO adverts (title, subtitle, badge_text, price_callout, cta_text, media_type, media_url, animation_style, duration_sec, active, sort_order, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          a.title, a.subtitle, a.badge_text, a.price_callout, a.cta_text,
+          a.media_type, a.media_url, a.animation_style, a.duration_sec,
+          isPostgres ? true : 1, a.sort_order, now,
+        ]
+      );
+    }
+  }
+
+  // Upgrade initial seeded news thumbnails to authentic UPS exhibition photos if still on placeholder photos
+  await run(
+    `UPDATE news SET image_url = '/images/ups/ups-01.jpg' WHERE image_url = '/images/products/wooden-dining-set.jpg'`
+  );
+  await run(
+    `UPDATE news SET image_url = '/images/ups/ups-21.jpg' WHERE image_url = '/images/products/soya-bean-seeds.jpg'`
+  );
+  await run(
+    `UPDATE news SET image_url = '/images/ups/ups-06.jpg' WHERE image_url = '/images/products/leather-sandals.jpg'`
+  );
+}
+
 async function initDb() {
   await initConnection();
   await createTables();
   await seedInitialData();
+  await syncUpsRealMedia();
 }
 
 module.exports = {

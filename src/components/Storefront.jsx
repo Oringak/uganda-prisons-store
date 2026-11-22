@@ -35,7 +35,22 @@ import {
   paymentStatusMeta,
 } from '../utils/api';
 
-const CATEGORIES = ['All', 'Furniture', 'Leather Footwear', 'Agricultural Seeds'];
+const CATEGORIES = ['All', 'Furniture', 'Leather Footwear', 'Agricultural Seeds', 'Other'];
+
+const UPS_SHOWCASE_GALLERY = [
+  { src: '/images/ups/ups-17.jpg', tag: 'Carpentry Workshop', title: 'Luzira Prison Industries Woodworks & Chair Production' },
+  { src: '/images/ups/ups-11.jpg', tag: 'Executive Furniture', title: 'Handcrafted Solid Mahogany Office Desk & Maroon Chairs' },
+  { src: '/images/ups/ups-24.jpg', tag: 'Genuine Leather', title: 'Master-Crafted UPS Formal Leather Shoes' },
+  { src: '/images/ups/ups-06.jpg', tag: 'Leathercraft Stall', title: 'Genuine Leather Briefcases, Bags & Footwear Display' },
+  { src: '/images/ups/ups-07.jpg', tag: 'Leather Accessories', title: 'Hand-Stitched Leather Belts, Sandals & Steppers' },
+  { src: '/images/ups/ups-21.jpg', tag: 'Certified Seeds', title: 'Bulk Uganda Prisons Certified Maize & Soya Seed Stocks' },
+  { src: '/images/ups/ups-14.jpg', tag: 'Quality Seeds Desk', title: 'UPS Official Quality Seeds & Craftsmanship Exhibition' },
+  { src: '/images/ups/ups-03.jpg', tag: 'Furniture Showroom', title: 'UPS Exhibition Pavilion — Sofas, Timber & Farm Seeds' },
+  { src: '/images/ups/ups-01.jpg', tag: 'National Exhibition', title: 'Official Inspection of UPS Production & Industries Pavilion' },
+  { src: '/images/ups/ups-23.jpg', tag: 'Farmer Advisory', title: 'UPS Agricultural Farms — Quality Seeds & Pasture Desk' },
+  { src: '/images/ups/ups-13.jpg', tag: 'Artisanal Crafts', title: 'Handwoven Rehabilitation Vocational Baskets & Crafts' },
+  { src: '/images/ups/ups-18.jpg', tag: 'Regional Sales', title: 'UPS Regional Booth — Stools, Crafts & Certified Produce' },
+];
 
 export default function Storefront({ onNavigateAdmin, onToast }) {
   const [storeInfo, setStoreInfo] = useState(null);
@@ -73,6 +88,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [checkoutItems, setCheckoutItems] = useState(null);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   // Order Tracker & Proof of Payment Upload
   const [trackCode, setTrackCode] = useState('');
@@ -97,6 +113,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
       if (e.key === 'Escape') {
         setSelectedProduct(null);
         setSelectedArticle(null);
+        setSelectedPhoto(null);
         setCartOpen(false);
         setWishlistOpen(false);
       }
@@ -297,6 +314,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
 
           <nav className="main-nav">
             <a href="#catalog">Products &amp; Chartlist</a>
+            <a href="#showcase">UPS Showcase</a>
             <a href="#track-order">Track / Pay Proof</a>
             <a href="#news">News</a>
             <a href="#about">About Us</a>
@@ -320,6 +338,7 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
         <nav className="mobile-quick-nav" aria-label="Mobile Navigation">
           <a href="#catalog" onClick={() => setViewMode('grid')}>Products</a>
           <a href="#catalog" onClick={() => setViewMode('chartlist')}>Price Chartlist</a>
+          <a href="#showcase">UPS Photos</a>
           <a href="#track-order">Track / Proof</a>
           <a href="#news">News</a>
           <a href="#about">About Us</a>
@@ -330,8 +349,12 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
       <section className="hero-section">
         <div className="container hero-grid">
           <div>
-            <div className="hero-pill">
-              <Award size={14} /> Republic of Uganda • Prison Industries &amp; Certified Farms
+            <div className="hero-crest-strip">
+              <img src="/images/prisonslogo-1.png" alt="Uganda Prisons Service Crest" className="hero-crest-mini" />
+              <div>
+                <div className="hero-crest-top">REPUBLIC OF UGANDA • UGANDA PRISONS SERVICE</div>
+                <div className="hero-crest-motto">For God and My Country • Official Production &amp; Industries Store</div>
+              </div>
             </div>
             <h1 className="hero-title">
               Authentic <span>Uganda Prisons Service</span> Products Delivered Nationwide
@@ -552,85 +575,165 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
               })}
             </div>
           ) : (
-            /* OFFICIAL PRICE CHARTLIST TABLE VIEW */
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Photo</th>
-                    <th>SKU &amp; Product Name</th>
-                    <th>Category</th>
-                    <th>Unit</th>
-                    <th>Official Price Tag</th>
-                    <th>Bulk Free Delivery</th>
-                    <th>Stock</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((p) => {
-                    const isWished = wishlist.includes(p.id);
-                    return (
-                      <tr key={p.id}>
-                        <td>
-                          <img
-                            src={p.image_url}
-                            alt={p.name}
-                            className="table-thumb"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => openProductDetail(p)}
-                          />
-                        </td>
-                        <td>
-                          <div style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', fontWeight: 700 }}>
-                            {p.sku}
-                          </div>
-                          <strong
-                            style={{ color: 'var(--ups-green-deep)', cursor: 'pointer' }}
-                            onClick={() => openProductDetail(p)}
-                          >
-                            {p.name}
-                          </strong>
-                        </td>
-                        <td>
-                          <span className="status-badge badge-green">{p.category}</span>
-                        </td>
-                        <td>{p.unit_label}</td>
-                        <td>
-                          <strong style={{ color: 'var(--ups-green)', fontSize: '0.96rem' }}>
-                            {formatUgx(p.price_ugx)}
-                          </strong>
-                        </td>
-                        <td>{p.bulk_min_qty}+ units</td>
-                        <td>
-                          <span className={`status-badge ${p.stock_qty > 5 ? 'badge-green' : 'badge-gold'}`}>
-                            {p.stock_qty} available
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                            <button className="btn btn-outline btn-sm" onClick={() => openProductDetail(p)}>
-                              View
-                            </button>
-                            <button
-                              className="btn btn-outline btn-sm"
-                              onClick={() => toggleWishlist(p)}
-                              title="Wishlist"
+            /* OFFICIAL PRICE CHARTLIST: Desktop Table + Android 2-Column Grid View */
+            <>
+              <div className="table-wrap desktop-chartlist-table">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Photo</th>
+                      <th>SKU &amp; Product Name</th>
+                      <th>Category</th>
+                      <th>Unit</th>
+                      <th>Official Price Tag</th>
+                      <th>Bulk Free Delivery</th>
+                      <th>Stock</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.map((p) => {
+                      const isWished = wishlist.includes(p.id);
+                      return (
+                        <tr key={p.id}>
+                          <td>
+                            <img
+                              src={p.image_url}
+                              alt={p.name}
+                              className="table-thumb"
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => openProductDetail(p)}
+                            />
+                          </td>
+                          <td>
+                            <div style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', fontWeight: 700 }}>
+                              {p.sku}
+                            </div>
+                            <strong
+                              style={{ color: 'var(--ups-green-deep)', cursor: 'pointer' }}
+                              onClick={() => openProductDetail(p)}
                             >
-                              <Heart size={13} fill={isWished ? '#dc2626' : 'none'} color={isWished ? '#dc2626' : 'currentColor'} />
-                            </button>
-                            <button className="btn btn-primary btn-sm" onClick={() => startDirectPurchase(p, 1)}>
-                              Buy
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                              {p.name}
+                            </strong>
+                          </td>
+                          <td>
+                            <span className="status-badge badge-green">{p.category}</span>
+                          </td>
+                          <td>{p.unit_label}</td>
+                          <td>
+                            <strong style={{ color: 'var(--ups-green)', fontSize: '0.96rem' }}>
+                              {formatUgx(p.price_ugx)}
+                            </strong>
+                          </td>
+                          <td>{p.bulk_min_qty}+ units</td>
+                          <td>
+                            <span className={`status-badge ${p.stock_qty > 5 ? 'badge-green' : 'badge-gold'}`}>
+                              {p.stock_qty} available
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              <button className="btn btn-outline btn-sm" onClick={() => openProductDetail(p)}>
+                                View
+                              </button>
+                              <button
+                                className="btn btn-outline btn-sm"
+                                onClick={() => toggleWishlist(p)}
+                                title="Wishlist"
+                              >
+                                <Heart size={13} fill={isWished ? '#dc2626' : 'none'} color={isWished ? '#dc2626' : 'currentColor'} />
+                              </button>
+                              <button className="btn btn-primary btn-sm" onClick={() => startDirectPurchase(p, 1)}>
+                                Buy
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Android Phone 2-Column Price Chartlist Grid View */}
+              <div className="mobile-chartlist-grid">
+                {filteredProducts.map((p) => {
+                  const isWished = wishlist.includes(p.id);
+                  return (
+                    <article className="chartlist-tile" key={p.id}>
+                      <div className="chartlist-tile-media" onClick={() => openProductDetail(p)}>
+                        <img src={p.image_url} alt={p.name} loading="lazy" />
+                        <span className="chartlist-sku-pill">{p.sku}</span>
+                        <button
+                          className={`wish-float-btn ${isWished ? 'active' : ''}`}
+                          aria-label={isWished ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(p);
+                          }}
+                        >
+                          <Heart size={14} fill={isWished ? '#dc2626' : 'none'} />
+                        </button>
+                      </div>
+                      <div className="chartlist-price-strip">
+                        <strong>{formatUgx(p.price_ugx)}</strong>
+                        <span>/ {p.unit_label}</span>
+                      </div>
+                      <div className="chartlist-tile-body">
+                        <div className="chartlist-cat">{p.category}</div>
+                        <h3 className="chartlist-tile-name" onClick={() => openProductDetail(p)}>
+                          {p.name}
+                        </h3>
+                        <div className="chartlist-tile-meta">
+                          <span>Stock: {p.stock_qty}</span>
+                          <span>Bulk: {p.bulk_min_qty}+</span>
+                        </div>
+                        <div className="chartlist-tile-actions">
+                          <button className="btn btn-outline btn-sm" onClick={() => openProductDetail(p)}>
+                            View
+                          </button>
+                          <button className="btn btn-primary btn-sm" onClick={() => startDirectPurchase(p, 1)}>
+                            Buy
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
           )}
+        </div>
+      </section>
+
+      {/* OFFICIAL UGANDA PRISONS SERVICE WORKSHOPS & EXHIBITIONS PHOTO SHOWCASE */}
+      <section id="showcase" className="section section-alt">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <div className="section-kicker">Authentic Craftsmanship &amp; Institutional Pride</div>
+              <h2 className="section-title">Inside Uganda Prisons Service Industries &amp; Exhibitions</h2>
+              <p className="section-sub">
+                Real moments from Uganda Prisons Service carpentry workshops, leathercraft ateliers, certified seed farms, and national trade exhibitions across Uganda. Tap any photo to inspect.
+              </p>
+            </div>
+          </div>
+
+          <div className="showcase-grid">
+            {UPS_SHOWCASE_GALLERY.map((photo, idx) => (
+              <figure
+                className="showcase-card"
+                key={idx}
+                onClick={() => setSelectedPhoto(photo)}
+              >
+                <div className="showcase-img-wrap">
+                  <img src={photo.src} alt={photo.title} loading="lazy" />
+                  <span className="showcase-tag">{photo.tag}</span>
+                </div>
+                <figcaption className="showcase-caption">{photo.title}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -851,22 +954,30 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
             </div>
           </div>
 
-          <div className="about-cards">
-            <div className="about-mini-card">
-              <h4>🪵 Carpentry &amp; Woodworks</h4>
-              <p>Kiln-dried solid Ugandan Mahogany, Mvule, and Pine beds, chairs, dining sets, office desks, and school furniture built to last generations.</p>
+          <div>
+            <div className="about-collage">
+              <img src="/images/ups/ups-17.jpg" alt="UPS Carpentry Workshop" loading="lazy" />
+              <img src="/images/ups/ups-21.jpg" alt="UPS Certified Seed Stock" loading="lazy" />
+              <img src="/images/ups/ups-24.jpg" alt="UPS Handcrafted Leather Shoes" loading="lazy" />
+              <img src="/images/ups/ups-01.jpg" alt="UPS National Exhibition Pavilion" loading="lazy" />
             </div>
-            <div className="about-mini-card">
-              <h4>👞 Leathercraft &amp; Footwear</h4>
-              <p>Hand-stitched genuine cowhide leather formal shoes, institutional boots, and durable everyday leather steppers and sandals.</p>
-            </div>
-            <div className="about-mini-card">
-              <h4>🌽 Certified Farm Seeds</h4>
-              <p>High-germination Improved Hybrid Maize (Longe 10H / Bazooka), Maksoy 3N Soya Bean seeds, and commercial farm produce.</p>
-            </div>
-            <div className="about-mini-card">
-              <h4>🇺🇬 Nationwide Access</h4>
-              <p>Free bulk delivery nationwide by Prison Sales Agents and convenient local pickup for smaller purchases at any nearby Uganda Prisons unit.</p>
+            <div className="about-cards">
+              <div className="about-mini-card">
+                <h4>🪵 Carpentry &amp; Woodworks</h4>
+                <p>Kiln-dried solid Ugandan Mahogany, Mvule, and Pine beds, chairs, dining sets, office desks, and school furniture built to last generations.</p>
+              </div>
+              <div className="about-mini-card">
+                <h4>👞 Leathercraft &amp; Footwear</h4>
+                <p>Hand-stitched genuine cowhide leather formal shoes, institutional boots, and durable everyday leather steppers and sandals.</p>
+              </div>
+              <div className="about-mini-card">
+                <h4>🌽 Certified Farm Seeds</h4>
+                <p>High-germination Improved Hybrid Maize (Longe 10H / Bazooka), Maksoy 3N Soya Bean seeds, and commercial farm produce.</p>
+              </div>
+              <div className="about-mini-card">
+                <h4>🇺🇬 Nationwide Access</h4>
+                <p>Free bulk delivery nationwide by Prison Sales Agents and convenient local pickup for smaller purchases at any nearby Uganda Prisons unit.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1202,6 +1313,31 @@ export default function Storefront({ onNavigateAdmin, onToast }) {
           }}
           onToast={onToast}
         />
+      )}
+
+      {/* ==================== PHOTO SHOWCASE LIGHTBOX ==================== */}
+      {selectedPhoto && (
+        <div className="modal-backdrop" onClick={() => setSelectedPhoto(null)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <h3>{selectedPhoto.tag}</h3>
+              <button className="icon-btn" aria-label="Close photo preview" onClick={() => setSelectedPhoto(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="modal-body" style={{ textAlign: 'center' }}>
+              <img
+                src={selectedPhoto.src}
+                alt={selectedPhoto.title}
+                style={{ width: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: 12, background: '#141619', marginBottom: 12 }}
+              />
+              <p style={{ fontWeight: 700, color: 'var(--ups-black)' }}>{selectedPhoto.title}</p>
+              <p style={{ fontSize: '0.82rem', color: 'var(--ups-maroon)', fontWeight: 700, marginTop: 4 }}>
+                Uganda Prisons Service — Official Production &amp; Industries
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ==================== NEWS ARTICLE MODAL ==================== */}
