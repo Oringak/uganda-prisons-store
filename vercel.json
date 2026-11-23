@@ -1,6 +1,22 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/docs/(.*)\\.pdf",
+      "headers": [
+        { "key": "Content-Type", "value": "application/pdf" },
+        { "key": "Content-Disposition", "value": "attachment" }
+      ]
+    },
+    {
+      "source": "/docs/(.*)\\.pptx",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+        { "key": "Content-Disposition", "value": "attachment" }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -11,7 +27,7 @@
       "destination": "https://uganda-prisons-service-store.onrender.com/uploads/:path*"
     },
     {
-      "source": "/((?!assets/|images/|api/|uploads/).*)",
+      "source": "/((?!assets/|images/|docs/|api/|uploads/).*)",
       "destination": "/index.html"
     }
   ]
